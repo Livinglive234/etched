@@ -1,5 +1,6 @@
 package gg.moonflower.etched.client;
 
+import gg.moonflower.etched.api.util.NetworkPolicy;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -30,6 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
@@ -205,20 +207,11 @@ public final class AlbumCoverCache {
     }
 
     public static InputStream get(String url) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-        connection.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
-        InputStream stream = connection.getInputStream();
-
+        HttpURLConnection connection = NetworkPolicy.connect(new URL(url), null, "GET", Map.of("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11"));
         if (connection.getResponseCode() != 200) {
-            IOException exception = new IOException("Failed to connect to '" + url + "'. " + connection.getResponseCode() + " " + connection.getResponseMessage());
-            try {
-                stream.close();
-            } catch (Throwable e) {
-                exception.addSuppressed(e);
-            }
-            throw exception;
+            throw new IOException("Failed to connect to '" + url + "'. " + connection.getResponseCode() + " " + connection.getResponseMessage());
         }
 
-        return stream;
+        return connection.getInputStream();
     }
 }

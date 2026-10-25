@@ -1,5 +1,6 @@
 package gg.moonflower.etched.common.sound.download;
 
+import gg.moonflower.etched.api.util.NetworkPolicy;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -43,13 +44,7 @@ public class BandcampSource implements SoundDownloadSource {
 
         try {
             URL uRL = new URI(url).toURL();
-            httpURLConnection = (HttpURLConnection) uRL.openConnection(proxy);
-            httpURLConnection.setInstanceFollowRedirects(true);
-            Map<String, String> map = SoundDownloadSource.getDownloadHeaders();
-
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                httpURLConnection.setRequestProperty(entry.getKey(), entry.getValue());
-            }
+            httpURLConnection = NetworkPolicy.connect(uRL, proxy, "GET", SoundDownloadSource.getDownloadHeaders());
 
             long size = httpURLConnection.getContentLengthLong();
             int response = httpURLConnection.getResponseCode();

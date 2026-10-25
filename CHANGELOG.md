@@ -1,4 +1,5 @@
 - Add support for Fabric
 - Fix SoundCloud playback and add AAC decoding
 - Fix radios and long tracks freezing the game
+- Block requests to private networks and add the Allow Private Network Stations option
 - Add support for Sophisticated Core

@@ -1,5 +1,6 @@
 package gg.moonflower.etched.common.sound.download;
 
+import gg.moonflower.etched.api.util.NetworkPolicy;
 import com.google.gson.*;
 import gg.moonflower.etched.api.record.TrackData;
 import gg.moonflower.etched.api.sound.download.SoundDownloadSource;
@@ -45,13 +46,7 @@ public class SoundCloudSource implements SoundDownloadSource {
 
         try {
             URL uRL = requiresId ? appendUri(url, "client_id=" + SoundCloudIdTracker.fetch(proxy)) : new URI(url).toURL();
-            httpURLConnection = (HttpURLConnection) uRL.openConnection(proxy);
-            httpURLConnection.setInstanceFollowRedirects(true);
-            Map<String, String> map = SoundDownloadSource.getDownloadHeaders();
-
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                httpURLConnection.setRequestProperty(entry.getKey(), entry.getValue());
-            }
+            httpURLConnection = NetworkPolicy.connect(uRL, proxy, "GET", SoundDownloadSource.getDownloadHeaders());
 
             int response = httpURLConnection.getResponseCode();
             if (requiresId && attempt == 0 && (response == 401 || response == 403)) { // Authenticate if required and bad auth response

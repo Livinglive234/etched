@@ -1,5 +1,6 @@
 package gg.moonflower.etched.common.menu;
 
+import gg.moonflower.etched.api.util.NetworkPolicy;
 import gg.moonflower.etched.platform.EtchedPlatform;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -157,16 +158,8 @@ public class EtchingMenu extends AbstractContainerMenu implements UrlMenu {
 
     private static void checkStatus(String url) throws IOException, URISyntaxException {
         URL uri = new URI(url).toURL();
-        HttpURLConnection httpURLConnection = (HttpURLConnection) uri.openConnection(Proxy.NO_PROXY);
-        if (!uri.getHost().equals("www.dropbox.com")) { // Hack for dropbox returning the wrong content type for head requests
-            httpURLConnection.setRequestMethod("HEAD");
-        }
-        httpURLConnection.setInstanceFollowRedirects(true);
-        Map<String, String> map = SoundDownloadSource.getDownloadHeaders();
-
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            httpURLConnection.setRequestProperty(entry.getKey(), entry.getValue());
-        }
+        // Hack for dropbox returning the wrong content type for head requests
+        HttpURLConnection httpURLConnection = NetworkPolicy.connect(uri, Proxy.NO_PROXY, uri.getHost().equals("www.dropbox.com") ? "GET" : "HEAD", SoundDownloadSource.getDownloadHeaders());
 
         if (httpURLConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
             throw new IOException(httpURLConnection.getResponseCode() + " " + httpURLConnection.getResponseMessage());

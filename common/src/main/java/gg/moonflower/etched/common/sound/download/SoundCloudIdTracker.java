@@ -1,5 +1,6 @@
 package gg.moonflower.etched.common.sound.download;
 
+import gg.moonflower.etched.api.util.NetworkPolicy;
 import gg.moonflower.etched.api.sound.download.SoundDownloadSource;
 import net.minecraft.Util;
 import org.apache.commons.io.IOUtils;
@@ -46,15 +47,7 @@ public final class SoundCloudIdTracker {
 
         try {
             URL uRL = new URL("https://soundcloud.com");
-            httpURLConnection = (HttpURLConnection) uRL.openConnection(proxy);
-            httpURLConnection.setConnectTimeout(TIMEOUT);
-            httpURLConnection.setReadTimeout(TIMEOUT);
-            httpURLConnection.setInstanceFollowRedirects(true);
-            Map<String, String> map = SoundDownloadSource.getDownloadHeaders();
-
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                httpURLConnection.setRequestProperty(entry.getKey(), entry.getValue());
-            }
+            httpURLConnection = NetworkPolicy.connect(uRL, proxy, "GET", SoundDownloadSource.getDownloadHeaders());
 
             if (httpURLConnection.getResponseCode() != 200) {
                 throw new IOException(httpURLConnection.getResponseCode() + " " + httpURLConnection.getResponseMessage());
@@ -75,15 +68,7 @@ public final class SoundCloudIdTracker {
 
     private static @Nullable String findIdFromScript(String url, Proxy proxy) {
         try {
-            HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(url).openConnection(proxy);
-            httpURLConnection.setConnectTimeout(TIMEOUT);
-            httpURLConnection.setReadTimeout(TIMEOUT);
-            httpURLConnection.setInstanceFollowRedirects(true);
-            Map<String, String> map = SoundDownloadSource.getDownloadHeaders();
-
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                httpURLConnection.setRequestProperty(entry.getKey(), entry.getValue());
-            }
+            HttpURLConnection httpURLConnection = NetworkPolicy.connect(new URL(url), proxy, "GET", SoundDownloadSource.getDownloadHeaders());
 
             if (httpURLConnection.getResponseCode() != 200) {
                 throw new IOException(httpURLConnection.getResponseCode() + " " + httpURLConnection.getResponseMessage());

@@ -1,5 +1,6 @@
 package gg.moonflower.etched.api.sound.source;
 
+import gg.moonflower.etched.api.util.NetworkPolicy;
 import com.mojang.util.UndashedUuid;
 import gg.moonflower.etched.api.sound.download.SoundDownloadSource;
 import gg.moonflower.etched.api.util.AsyncInputStream;
@@ -21,6 +22,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -35,7 +37,6 @@ public interface AudioSource {
 
     Logger LOGGER = LogManager.getLogger();
     long MAX_SIZE = 100 * 1024 * 1024; // 100MB
-    int STREAM_TIMEOUT = 15000; // A stalled stream would otherwise keep its read thread blocked forever
 
     /**
      * @return The vanilla Minecraft client download headers
@@ -66,8 +67,7 @@ public interface AudioSource {
             progressListener.progressStartRequest(Component.translatable("resourcepack.requesting"));
         }
         try {
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            getDownloadHeaders().forEach(connection::setRequestProperty);
+            HttpURLConnection connection = NetworkPolicy.connect(url, null, "GET", getDownloadHeaders());
 
             int response = connection.getResponseCode();
             if (response != 200) {
@@ -155,11 +155,13 @@ public interface AudioSource {
                         throw new IOException("The provided URL is a stream, but that is not supported");
                     }
                     return () -> new AsyncInputStream(() -> {
-                        URLConnection streamConnection = url.openConnection();
-                        streamConnection.setConnectTimeout(STREAM_TIMEOUT);
-                        streamConnection.setReadTimeout(STREAM_TIMEOUT);
-                        streamConnection.setUseCaches(false); // Live streams must never be replayed from the cache
-                        streamConnection.setRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
+                        // Live streams must never be replayed from the cache
+                        Map<String, String> streamHeaders = new HashMap<>(getDownloadHeaders());
+                        streamHeaders.put("Cache-Control", "no-cache, no-store, must-revalidate");
+                        HttpURLConnection streamConnection = NetworkPolicy.connect(url, null, "GET", streamHeaders);
+                        if (streamConnection.getResponseCode() != 200) {
+                            throw new IOException("Failed to connect to " + url + ": " + streamConnection.getResponseCode() + ". " + streamConnection.getResponseMessage());
+                        }
                         return streamConnection.getInputStream();
                     }, 8192, 8, Util.nonCriticalIoPool());
                 }
