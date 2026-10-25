@@ -37,7 +37,7 @@ committed data unchanged.
 Players decide which URLs the game and the server connect to, so every request, including each redirect, is checked before it is
 made. Only HTTP(S) URLs without credentials are allowed, and addresses on this computer or private networks are refused. On the
 client, the `Allow Private Network Stations` option in the client config lets you play from a station on your own network. Only turn it
-on with servers you trust, since they decide which radio URL your game connects to.
+on with servers you trust, since they decide which radio URL your game connects to. Requests never include your username or UUID.
 
 ## Credits and contributions from the community
 

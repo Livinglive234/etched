@@ -1,15 +1,12 @@
 package gg.moonflower.etched.api.sound.source;
 
 import gg.moonflower.etched.api.util.NetworkPolicy;
-import com.mojang.util.UndashedUuid;
 import gg.moonflower.etched.api.sound.download.SoundDownloadSource;
 import gg.moonflower.etched.api.util.AsyncInputStream;
 import gg.moonflower.etched.api.util.DownloadProgressListener;
 import gg.moonflower.etched.api.util.ProgressTrackingInputStream;
 import gg.moonflower.etched.client.sound.SoundCache;
 import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.User;
 import net.minecraft.network.chat.Component;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,14 +36,10 @@ public interface AudioSource {
     long MAX_SIZE = 100 * 1024 * 1024; // 100MB
 
     /**
-     * @return The vanilla Minecraft client download headers
+     * @return The download headers, which never include the player's username or UUID since the host is chosen by whoever made the disc or radio
      */
     static Map<String, String> getDownloadHeaders() {
-        Map<String, String> map = SoundDownloadSource.getDownloadHeaders();
-        User user = Minecraft.getInstance().getUser();
-        map.put("X-Minecraft-Username", user.getName());
-        map.put("X-Minecraft-UUID", UndashedUuid.toString(user.getProfileId()));
-        return map;
+        return SoundDownloadSource.getDownloadHeaders();
     }
 
     static AsyncInputStream.InputStreamSupplier downloadTo(URL url, boolean temporary, @Nullable DownloadProgressListener progressListener, AudioFileType type) {

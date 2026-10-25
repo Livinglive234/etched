@@ -45,7 +45,6 @@ Sources are read-only references:
 
 | Item | From | Notes |
 |---|---|---|
-| Stop sending the player's username and UUID to third party hosts | re-etched `4.0.0-beta.1` | `AudioSource.getDownloadHeaders()` adds `X-Minecraft-Username` and `X-Minecraft-UUID` to every request. A disc or radio can point at any host, so that host can log who played it. Re-Etched removed it. |
 | Size caps on playlist and provider responses | re-etched `4.0.0-beta.1` | Limits response bodies, playlist depth and entries so a hostile server cannot make the game read without end. |
 | Per-server rule for private network stations | Idea only | We have one global client option. A per-server list would be safer. |
 
