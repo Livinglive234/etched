@@ -12,6 +12,8 @@ import gg.moonflower.etched.core.registry.EtchedComponents;
 import gg.moonflower.etched.core.registry.EtchedItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemColor;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.network.chat.Component;
@@ -19,12 +21,15 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.ItemLike;
+
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
@@ -82,12 +87,21 @@ public final class EtchedClientSetup {
             InteractionHand hand = entity != null ? BoomboxItem.getPlayingHand(entity) : null;
             return hand != null && stack == entity.getItemInHand(hand) ? 1 : 0;
         });
-        ItemProperties.register(EtchedItems.ETCHED_MUSIC_DISC.get(), Etched.etchedPath("pattern"), (stack, level, entity, i) -> {
-            DiscAppearanceComponent discAppearance = stack.get(EtchedComponents.DISC_APPEARANCE.get());
-            if (discAppearance != null) {
-                return discAppearance.pattern().ordinal();
+        ItemProperties.register(EtchedItems.ETCHED_MUSIC_DISC.get(), Etched.etchedPath("pattern"), new ClampedItemPropertyFunction() {
+            @Override
+            public float unclampedCall(ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int seed) {
+                DiscAppearanceComponent discAppearance = stack.get(EtchedComponents.DISC_APPEARANCE.get());
+                if (discAppearance != null) {
+                    return discAppearance.pattern().ordinal();
+                }
+                return 0.0F;
             }
-            return 0.0F;
+
+            @Override
+            public float call(ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int seed) {
+                // The pattern is a number from 0 to 5, so it must not be clamped to 1 like vanilla properties
+                return this.unclampedCall(stack, level, entity, seed);
+            }
         });
     }
 
