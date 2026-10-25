@@ -1,6 +1,5 @@
 plugins {
     id 'fabric-loom' version '1.9.2'
-    id 'me.modmuss50.mod-publish-plugin'
 }
 
 repositories {
@@ -122,54 +121,4 @@ publishing {
             from components.java
         }
     }
-}
-
-publishMods {
-    def changelogFile = rootProject.file("CHANGELOG.md")
-
-    type = STABLE
-
-    file = remapJar.archiveFile
-    additionalFiles.from(sourcesJar.archiveFile)
-
-    changelog = changelogFile.text
-
-    version = project.version
-    displayName = "$mod_name $project.version Fabric"
-    modLoaders.add("fabric")
-
-    curseforge {
-        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
-        projectId = "491890"
-        minecraftVersions.add(minecraft_version)
-
-        clientRequired = true
-        serverRequired = true
-
-        requires "fabric-api", "forge-config-api-port-fabric"
-    }
-
-    github {
-        repository = "jacksonhardaway/etched"
-        accessToken = providers.environmentVariable("GITHUB_TOKEN")
-        tagName = "mc$minecraft_version-$project.version-$project.name"
-        commitish = "1.21.x"
-
-        file.unset()
-        file.unsetConvention()
-        additionalFiles.unset()
-        additionalFiles.unsetConvention()
-
-        allowEmptyFiles = true
-    }
-
-    modrinth {
-        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
-        projectId = "zi3Fnfmc"
-        minecraftVersions.add(minecraft_version)
-
-        requires "fabric-api", "forge-config-api-port"
-    }
-
-    dryRun = providers.environmentVariable("GITHUB_TOKEN").getOrNull() == null
 }

@@ -1,6 +1,5 @@
 plugins {
     id 'net.neoforged.moddev' version '2.0.113'
-    id 'me.modmuss50.mod-publish-plugin'
 }
 
 repositories {
@@ -135,54 +134,4 @@ publishing {
             from components.java
         }
     }
-}
-
-publishMods {
-    def changelogFile = rootProject.file("CHANGELOG.md")
-
-    type = STABLE
-
-    file = jar.archiveFile
-    additionalFiles.from(sourcesJar.archiveFile)
-
-    changelog = changelogFile.text
-
-    version = project.version
-    displayName = "$mod_name $project.version NeoForge"
-    modLoaders.add("neoforge")
-
-    curseforge {
-        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
-        projectId = "491890"
-        minecraftVersions.add(minecraft_version)
-
-        clientRequired = true
-        serverRequired = true
-
-        optional "sophisticated-core"
-    }
-
-    github {
-        repository = "jacksonhardaway/etched"
-        accessToken = providers.environmentVariable("GITHUB_TOKEN")
-        tagName = "mc$minecraft_version-$project.version-$project.name"
-        commitish = "1.21.x"
-
-        file.unset()
-        file.unsetConvention()
-        additionalFiles.unset()
-        additionalFiles.unsetConvention()
-
-        allowEmptyFiles = true
-    }
-
-    modrinth {
-        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
-        projectId = "zi3Fnfmc"
-        minecraftVersions.add(minecraft_version)
-
-        optional "sophisticated-core"
-    }
-
-    dryRun = providers.environmentVariable("GITHUB_TOKEN").getOrNull() == null
 }
