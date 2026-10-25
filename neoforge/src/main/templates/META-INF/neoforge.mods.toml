@@ -1,7 +1,7 @@
 modLoader = "javafml"
 loaderVersion = "${loader_version_range}"
 license = "${mod_license}"
-issueTrackerURL = "https://github.com/jacksonhardaway/etched/issues"
+issueTrackerURL = "https://github.com/Livinglive234/etched/issues"
 
 [[mods]]
 modId = "${mod_id}"

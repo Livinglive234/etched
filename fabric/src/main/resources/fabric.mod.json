@@ -11,9 +11,9 @@
     "AstraZoey (Sound Design)"
   ],
   "contact": {
-    "homepage": "https://www.curseforge.com/minecraft/mc-mods/etched",
-    "issues": "https://github.com/jacksonhardaway/etched/issues",
-    "sources": "https://github.com/jacksonhardaway/etched"
+    "homepage": "https://github.com/Livinglive234/etched",
+    "issues": "https://github.com/Livinglive234/etched/issues",
+    "sources": "https://github.com/Livinglive234/etched"
   },
   "license": "${mod_license}",
   "icon": "${mod_id}.icon.png",
