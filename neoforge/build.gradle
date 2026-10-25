@@ -81,6 +81,14 @@ dependencies {
         }
     }
     additionalRuntimeClasspath("com.github.umjammer:jlayer:${jlayer_version}")
+
+    jarJar(implementation("com.tianscar.javasound:jaad")) {
+        version {
+            strictly '[0.9.4,1.0)'
+            prefer project.jaad_version
+        }
+    }
+    additionalRuntimeClasspath("com.tianscar.javasound:jaad:${jaad_version}")
 }
 
 tasks.named('compileJava', JavaCompile) {

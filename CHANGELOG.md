@@ -1,2 +1,4 @@
 - Add support for Fabric
+- Fix SoundCloud playback and add AAC decoding
+- Fix radios and long tracks freezing the game
 - Add support for Sophisticated Core

@@ -25,6 +25,7 @@ dependencies {
     compileOnly "io.github.llamalad7:mixinextras-common:${mixinextras_version}"
     annotationProcessor "io.github.llamalad7:mixinextras-common:${mixinextras_version}"
     compileOnly "com.github.umjammer:jlayer:${jlayer_version}"
+    compileOnly "com.tianscar.javasound:jaad:${jaad_version}"
     compileOnly 'org.jetbrains:annotations:24.1.0'
 }
 

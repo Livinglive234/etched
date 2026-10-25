@@ -39,6 +39,8 @@ dependencies {
 
     implementation "com.github.umjammer:jlayer:${jlayer_version}"
     include "com.github.umjammer:jlayer:${jlayer_version}"
+    implementation "com.tianscar.javasound:jaad:${jaad_version}"
+    include "com.tianscar.javasound:jaad:${jaad_version}"
 }
 
 def generatedResources = rootProject.file('common/src/generated/resources')
