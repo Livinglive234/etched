@@ -33,7 +33,8 @@ public record ClientboundPlayEntityMusicPacket(Action action, ItemStack record, 
         Action action = buf.readEnum(Action.class);
         ItemStack record = action == Action.STOP ? ItemStack.EMPTY : ItemStack.STREAM_CODEC.decode(buf);
         int entityId = buf.readVarInt();
-        UUID storageId = action != Action.STOP && buf.readBoolean() && Etched.SOPHSTICATED_CORE_LOADED ? buf.readUUID() : null;
+        // The flag is only written when Sophisticated Core is loaded, so it must only be read in that case
+        UUID storageId = action != Action.STOP && Etched.SOPHSTICATED_CORE_LOADED && buf.readBoolean() ? buf.readUUID() : null;
         return new ClientboundPlayEntityMusicPacket(action, record, entityId, storageId);
     });
 
