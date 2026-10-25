@@ -12,5 +12,6 @@ public class EtchedEntities {
 
     public static final Registrar<EntityType<?>> REGISTRY = EtchedPlatform.get().registrar(BuiltInRegistries.ENTITY_TYPE);
 
-    public static final RegistryObject<EntityType<MinecartJukebox>> JUKEBOX_MINECART = REGISTRY.register("jukebox_minecart", () -> EntityType.Builder.<MinecartJukebox>of(MinecartJukebox::new, MobCategory.MISC).sized(0.98F, 0.7F).clientTrackingRange(8).build("minecart_jukebox"));
+    // The key is only used in development to look the entity up in the data fixers, which do not know modded entities. Naming a vanilla minecart avoids an error being logged
+    public static final RegistryObject<EntityType<MinecartJukebox>> JUKEBOX_MINECART = REGISTRY.register("jukebox_minecart", () -> EntityType.Builder.<MinecartJukebox>of(MinecartJukebox::new, MobCategory.MISC).sized(0.98F, 0.7F).clientTrackingRange(8).build("minecart"));
 }
