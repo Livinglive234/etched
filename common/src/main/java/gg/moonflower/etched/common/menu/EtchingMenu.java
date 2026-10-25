@@ -156,6 +156,29 @@ public class EtchingMenu extends AbstractContainerMenu implements UrlMenu {
         this.addDataSlot(this.labelIndex);
     }
 
+    /**
+     * Describes why a URL could not be used in a way that is safe to show to the player. The server made the request, so the message must
+     * not reveal anything about the server or the network it is on.
+     */
+    private static String describeFailure(Throwable error) {
+        Throwable cause = error instanceof CompletionException && error.getCause() != null ? error.getCause() : error;
+        if (cause instanceof UnknownHostException) {
+            return "Unknown host";
+        }
+        if (cause instanceof SocketTimeoutException) {
+            return "The connection timed out";
+        }
+        if (cause instanceof ConnectException) {
+            return "Could not connect";
+        }
+        if (cause instanceof IOException && cause.getMessage() != null) {
+            // Messages of IO errors are limited to short status text such as "404 Not Found" and "Unsupported Content-Type: ..."
+            String message = cause.getMessage().replaceAll("\\p{Cntrl}", " ").strip();
+            return message.length() > 100 ? message.substring(0, 100) + "..." : message;
+        }
+        return "Failed to load the audio from that URL";
+    }
+
     private static void checkStatus(String url) throws IOException, URISyntaxException {
         URL uri = new URI(url).toURL();
         // Hack for dropbox returning the wrong content type for head requests
@@ -318,7 +341,7 @@ public class EtchingMenu extends AbstractContainerMenu implements UrlMenu {
                                 data = Arrays.copyOfRange(tracks, 1, tracks.length);
                             }
                         } catch (Exception e) {
-                            EtchedPlatform.get().sendToPlayer((ServerPlayer) this.player, new ClientboundInvalidEtchUrlPacket(e instanceof CompletionException ? e.getCause().getMessage() : e.getMessage()));
+                            EtchedPlatform.get().sendToPlayer((ServerPlayer) this.player, new ClientboundInvalidEtchUrlPacket(describeFailure(e)));
                             if (e instanceof CompletionException ex) {
                                 throw ex;
                             }
@@ -332,7 +355,7 @@ public class EtchingMenu extends AbstractContainerMenu implements UrlMenu {
                             EtchedPlatform.get().sendToPlayer((ServerPlayer) this.player, new ClientboundInvalidEtchUrlPacket("Unknown host: " + this.url));
                             throw new CompletionException("Invalid URL", e);
                         } catch (Exception e) {
-                            EtchedPlatform.get().sendToPlayer((ServerPlayer) this.player, new ClientboundInvalidEtchUrlPacket(e.getMessage()));
+                            EtchedPlatform.get().sendToPlayer((ServerPlayer) this.player, new ClientboundInvalidEtchUrlPacket(describeFailure(e)));
                             throw new CompletionException("Invalid URL", e);
                         }
                     } else {
