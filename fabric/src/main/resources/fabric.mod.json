@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${mod_version}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "authors": [
+    "Ocelot",
+    "Jackson",
+    "Farcr (Art)",
+    "AstraZoey (Sound Design)"
+  ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/etched",
+    "issues": "https://github.com/jacksonhardaway/etched/issues",
+    "sources": "https://github.com/jacksonhardaway/etched"
+  },
+  "license": "${mod_license}",
+  "icon": "${mod_id}.icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "gg.moonflower.etched.core.EtchedFabric"
+    ],
+    "client": [
+      "gg.moonflower.etched.core.EtchedFabricClient"
+    ],
+    "fabric-datagen": [
+      "gg.moonflower.etched.core.data.EtchedFabricDataGenerator"
+    ]
+  },
+  "mixins": [
+    "etched.mixins.json",
+    "etched.fabric.mixins.json"
+  ],
+  "accessWidener": "etched.accesswidener",
+  "depends": {
+    "fabricloader": ">=${fabric_loader_version}",
+    "minecraft": "~${minecraft_version}",
+    "java": ">=21",
+    "fabric-api": "*",
+    "forgeconfigapiport": "*"
+  }
+}

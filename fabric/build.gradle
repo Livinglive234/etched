@@ -1,0 +1,173 @@
+plugins {
+    id 'fabric-loom' version '1.9.2'
+    id 'me.modmuss50.mod-publish-plugin'
+}
+
+repositories {
+    maven { url 'https://libraries.minecraft.net/' }
+    maven { url 'https://maven.fabricmc.net/' }
+}
+
+configurations {
+    commonJava {
+        canBeResolved = true
+    }
+    commonResources {
+        canBeResolved = true
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.layered {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${parchment_minecraft_version}:${parchment_mappings_version}@zip")
+    }
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+    modImplementation "maven.modrinth:forge-config-api-port:${forge_config_api_port_version}"
+    // Forge Config API Port nests these, but the nested libraries are not loaded in the development environment
+    runtimeOnly "com.electronwill.night-config:core:3.8.0"
+    runtimeOnly "com.electronwill.night-config:toml:3.8.0"
+
+    compileOnly project(':common')
+    commonJava project(path: ':common', configuration: 'commonJava')
+    commonResources project(path: ':common', configuration: 'commonResources')
+
+    compileOnly "io.github.llamalad7:mixinextras-common:${mixinextras_version}"
+    annotationProcessor "io.github.llamalad7:mixinextras-common:${mixinextras_version}"
+
+    implementation "com.github.umjammer:jlayer:${jlayer_version}"
+    include "com.github.umjammer:jlayer:${jlayer_version}"
+}
+
+def generatedResources = rootProject.file('common/src/generated/resources')
+
+loom {
+    accessWidenerPath = file('src/main/resources/etched.accesswidener')
+
+    mixin {
+        defaultRefmapName = 'etched.refmap.json'
+    }
+
+    runs {
+        client {
+            client()
+            setConfigName('Fabric Client')
+            ideConfigGenerated(true)
+            runDir('runs/client')
+        }
+        datagen {
+            inherit server
+            name 'Data Generation'
+            vmArg '-Dfabric-api.datagen'
+            vmArg "-Dfabric-api.datagen.output-dir=${generatedResources}"
+            vmArg '-Dfabric-api.datagen.modid=etched'
+            runDir 'build/datagen'
+            ideConfigGenerated(true)
+        }
+        server {
+            server()
+            setConfigName('Fabric Server')
+            ideConfigGenerated(true)
+            runDir('runs/server')
+        }
+    }
+}
+
+tasks.named('compileJava', JavaCompile) {
+    dependsOn configurations.commonJava
+    source configurations.commonJava
+}
+
+tasks.named('sourcesJar', Jar) {
+    dependsOn configurations.commonJava
+    from configurations.commonJava
+}
+
+tasks.named('processResources', ProcessResources) {
+    dependsOn configurations.commonResources
+    from configurations.commonResources
+
+    var replaceProperties = [
+            minecraft_version   : minecraft_version,
+            fabric_loader_version: fabric_loader_version,
+            fabric_api_version  : fabric_api_version,
+            mod_id              : mod_id,
+            mod_name            : mod_name,
+            mod_license         : mod_license,
+            mod_version         : mod_version,
+            mod_authors         : mod_authors,
+            mod_description     : mod_description
+    ]
+    inputs.properties replaceProperties
+    filesMatching('fabric.mod.json') {
+        expand replaceProperties
+    }
+
+    // The shared mixin config comes from the common module, so loom does not add the refmap to it
+    doLast {
+        def config = file("${destinationDir}/etched.mixins.json")
+        def json = new groovy.json.JsonSlurper().parse(config)
+        json.refmap = 'etched.refmap.json'
+        config.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(json))
+    }
+}
+
+publishing {
+    publications {
+        register('mavenJava', MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+publishMods {
+    def changelogFile = rootProject.file("CHANGELOG.md")
+
+    type = STABLE
+
+    file = remapJar.archiveFile
+    additionalFiles.from(sourcesJar.archiveFile)
+
+    changelog = changelogFile.text
+
+    version = project.version
+    displayName = "$mod_name $project.version Fabric"
+    modLoaders.add("fabric")
+
+    curseforge {
+        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+        projectId = "491890"
+        minecraftVersions.add(minecraft_version)
+
+        clientRequired = true
+        serverRequired = true
+
+        requires "fabric-api", "forge-config-api-port-fabric"
+    }
+
+    github {
+        repository = "jacksonhardaway/etched"
+        accessToken = providers.environmentVariable("GITHUB_TOKEN")
+        tagName = "mc$minecraft_version-$project.version-$project.name"
+        commitish = "1.21.x"
+
+        file.unset()
+        file.unsetConvention()
+        additionalFiles.unset()
+        additionalFiles.unsetConvention()
+
+        allowEmptyFiles = true
+    }
+
+    modrinth {
+        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+        projectId = "zi3Fnfmc"
+        minecraftVersions.add(minecraft_version)
+
+        requires "fabric-api", "forge-config-api-port"
+    }
+
+    dryRun = providers.environmentVariable("GITHUB_TOKEN").getOrNull() == null
+}

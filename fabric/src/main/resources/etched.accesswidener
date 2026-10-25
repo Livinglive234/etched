@@ -1,0 +1,16 @@
+accessWidener v2 named
+accessible field net/minecraft/data/worldgen/ProcessorLists EMPTY Lnet/minecraft/resources/ResourceKey;
+accessible method com/mojang/blaze3d/platform/NativeImage <init> (Lcom/mojang/blaze3d/platform/NativeImage$Format;IIZJ)V
+accessible method net/minecraft/world/entity/vehicle/VehicleEntity getDropItem ()Lnet/minecraft/world/item/Item;
+accessible field net/minecraft/client/renderer/texture/SpriteContents originalImage Lcom/mojang/blaze3d/platform/NativeImage;
+accessible method net/minecraft/client/renderer/item/ItemProperties register (Lnet/minecraft/world/item/Item;Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/client/renderer/item/ClampedItemPropertyFunction;)V
+accessible method net/minecraft/world/entity/vehicle/MinecartChest getDropItem ()Lnet/minecraft/world/item/Item;
+accessible method net/minecraft/world/entity/vehicle/MinecartCommandBlock getDropItem ()Lnet/minecraft/world/item/Item;
+accessible method net/minecraft/world/entity/vehicle/MinecartFurnace getDropItem ()Lnet/minecraft/world/item/Item;
+accessible method net/minecraft/world/entity/vehicle/MinecartHopper getDropItem ()Lnet/minecraft/world/item/Item;
+accessible method net/minecraft/world/entity/vehicle/Minecart getDropItem ()Lnet/minecraft/world/item/Item;
+accessible method net/minecraft/world/entity/vehicle/MinecartSpawner getDropItem ()Lnet/minecraft/world/item/Item;
+accessible method net/minecraft/world/entity/vehicle/MinecartTNT getDropItem ()Lnet/minecraft/world/item/Item;
+accessible method net/minecraft/world/entity/ai/village/poi/PoiTypes registerBlockStates (Lnet/minecraft/core/Holder;Ljava/util/Set;)V
+accessible class net/minecraft/world/inventory/MenuType$MenuSupplier
+accessible method net/minecraft/world/inventory/MenuType <init> (Lnet/minecraft/world/inventory/MenuType$MenuSupplier;Lnet/minecraft/world/flag/FeatureFlagSet;)V

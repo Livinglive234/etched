@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "package": "gg.moonflower.etched.core.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "minVersion": "0.8",
+  "client": [
+    "client.ItemStackTooltipMixin",
+    "client.SoundEngineStreamMixin"
+  ],
+  "mixins": [
+    "GrindstoneMenuMixin",
+    "ItemEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
