@@ -5,6 +5,10 @@ plugins {
 repositories {
     maven { url 'https://libraries.minecraft.net/' }
     maven { url 'https://maven.fabricmc.net/' }
+    maven {
+        url 'https://maven.parchmentmc.net/'
+        content { includeGroup 'org.parchmentmc.data' }
+    }
 }
 
 configurations {

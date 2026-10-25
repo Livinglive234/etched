@@ -8,8 +8,6 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-java@v6
@@ -27,29 +25,3 @@ jobs:
         with:
           name: Etched-Fabric
           path: fabric/build/libs/*[0-9].jar
-      - name: Prepare draft versioned release
-        if: github.ref == 'refs/heads/1.21.x' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          version=$(grep '^mod_version=' gradle.properties | cut -d= -f2)
-          test -n "$version"
-          neoforge_jars=(neoforge/build/libs/*[0-9].jar)
-          fabric_jars=(fabric/build/libs/*[0-9].jar)
-          test "${#neoforge_jars[@]}" -eq 1
-          test "${#fabric_jars[@]}" -eq 1
-          tag="v$version"
-          if gh release view "$tag" >/dev/null 2>&1; then
-            echo "Release $tag already exists; leaving its assets unchanged."
-            exit 0
-          fi
-          (cd neoforge/build/libs && sha256sum "$(basename "${neoforge_jars[0]}")" > "$(basename "${neoforge_jars[0]}").sha256")
-          (cd fabric/build/libs && sha256sum "$(basename "${fabric_jars[0]}")" > "$(basename "${fabric_jars[0]}").sha256")
-          flags=(--draft)
-          if [[ "$version" == *-* ]]; then flags+=(--prerelease); fi
-          gh release create "$tag" \
-            "${neoforge_jars[0]}" "${neoforge_jars[0]}.sha256" \
-            "${fabric_jars[0]}" "${fabric_jars[0]}.sha256" \
-            --target "$GITHUB_SHA" --title "Etched $version" --notes-file "docs/releases/$version.md" "${flags[@]}"
