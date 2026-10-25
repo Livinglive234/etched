@@ -1,1 +1,2 @@
+- Add support for Fabric
 - Add support for Sophisticated Core
