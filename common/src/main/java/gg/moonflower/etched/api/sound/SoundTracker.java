@@ -6,6 +6,7 @@ import gg.moonflower.etched.api.record.TrackData;
 import gg.moonflower.etched.api.sound.source.AudioSource;
 import gg.moonflower.etched.api.util.DownloadProgressListener;
 import gg.moonflower.etched.client.radio.RadioSession;
+import gg.moonflower.etched.client.radio.history.StationNames;
 import gg.moonflower.etched.common.blockentity.RadioBlockEntity;
 import gg.moonflower.etched.common.block.AlbumJukeboxBlock;
 import gg.moonflower.etched.common.block.RadioBlock;
@@ -521,7 +522,8 @@ public class SoundTracker {
         }
 
         if (TrackData.isValidURL(url)) {
-            AbstractOnlineSoundInstance record = getEtchedRecord(url, RADIO, level, pos, 8, AudioSource.AudioFileType.BOTH, () -> scheduleReconnect(url, level, pos));
+            String nickname = StationNames.get(url);
+            AbstractOnlineSoundInstance record = getEtchedRecord(url, nickname != null ? Component.literal(nickname) : RADIO, level, pos, 8, AudioSource.AudioFileType.BOTH, () -> scheduleReconnect(url, level, pos));
             record.setLoop(true); // If the sound is a file, then just continue looping that specific track
             playRecord(pos, record); // Get the new block state
         }

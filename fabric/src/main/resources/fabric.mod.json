@@ -22,6 +22,9 @@
     "main": [
       "gg.moonflower.etched.core.EtchedFabric"
     ],
+    "jei_mod_plugin": [
+      "gg.moonflower.etched.core.compat.jei.EtchedJeiPlugin"
+    ],
     "client": [
       "gg.moonflower.etched.core.EtchedFabricClient"
     ],

@@ -6,6 +6,10 @@ repositories {
     maven { url 'https://libraries.minecraft.net/' }
     maven { url 'https://maven.fabricmc.net/' }
     maven {
+        url 'https://maven.blamejared.com/'
+        content { includeGroup 'mezz.jei' }
+    }
+    maven {
         url 'https://maven.parchmentmc.net/'
         content { includeGroup 'org.parchmentmc.data' }
     }
@@ -47,6 +51,8 @@ dependencies {
     runtimeOnly "com.electronwill.night-config:core:3.8.0"
     runtimeOnly "com.electronwill.night-config:toml:3.8.0"
 
+    // JEI is only needed to compile the plugin that hides its overlay on the radio screens
+    modCompileOnly "mezz.jei:jei-1.21.1-fabric-api:${jei_version}"
     modCompileOnly "com.github.livinglive234:createfabric:${create_fabric_version}:${create_fabric_build}@jar"
 
     compileOnly project(':common')
