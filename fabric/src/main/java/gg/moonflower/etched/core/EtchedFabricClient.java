@@ -1,6 +1,7 @@
 package gg.moonflower.etched.core;
 
 import gg.moonflower.etched.client.EtchedClientSetup;
+import gg.moonflower.etched.client.compat.SableCompat;
 import gg.moonflower.etched.client.render.EtchedModelLayers;
 import gg.moonflower.etched.client.render.JukeboxMinecartRenderer;
 import gg.moonflower.etched.client.render.item.AlbumCoverItemRenderer;
@@ -38,6 +39,9 @@ public class EtchedFabricClient implements ClientModInitializer {
         EtchedClientSetup.registerItemProperties();
         if (FabricLoader.getInstance().isModLoaded("create")) {
             CreateCompatClient.registerReceiver();
+        }
+        if (FabricLoader.getInstance().isModLoaded("sable")) {
+            SableCompat.load();
         }
         if (FabricLoader.getInstance().isModLoaded("valkyrienskies")) {
             ValkyrienSkiesCompat.load();

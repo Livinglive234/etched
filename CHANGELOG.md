@@ -1,3 +1,4 @@
+- Add support for Sable: the distance checks of radios, jukeboxes and boomboxes count blocks on Sable sub-levels, such as Create: Aeronautics ships, as being where they are seen
 - Add Play, Stop and Close to the radio. Stop silences the radio for everyone and keeps its station
 - Add station playlists in PLS and M3U, with the first working entry as a fallback, and reconnect a radio that loses its connection
 - Show stream titles and a Now Playing header on the screens of radios, jukeboxes, album jukeboxes and boomboxes

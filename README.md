@@ -32,7 +32,7 @@ The full list is in [docs/features.md](docs/features.md), with where each featur
   radio playlists in PLS and M3U with the first working entry used as a fallback.
 - **Create and Valkyrien Skies (Fabric only).** Radios, album jukeboxes and jukeboxes keep playing while mounted on a Create contraption, such as
   a train, and radios and album jukeboxes can be opened and changed while they move. Radios and jukeboxes on Valkyrien Skies ships, such as
-  Eureka ships, are heard from where the ship is.
+  Eureka ships, are heard from where the ship is. Sable sub-levels, such as Create: Aeronautics ships, are supported on both loaders, but have not been played yet.
 - **Compatibility.** Amendments' jukebox look is supported, and parrots dance to anything playing nearby.
 
 ## Using the radio

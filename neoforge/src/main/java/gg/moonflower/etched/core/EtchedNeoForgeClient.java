@@ -1,6 +1,7 @@
 package gg.moonflower.etched.core;
 
 import gg.moonflower.etched.client.EtchedClientSetup;
+import gg.moonflower.etched.client.compat.SableCompat;
 import gg.moonflower.etched.client.render.EtchedModelLayers;
 import gg.moonflower.etched.client.render.JukeboxMinecartRenderer;
 import gg.moonflower.etched.client.render.item.AlbumCoverItemRenderer;
@@ -13,6 +14,7 @@ import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.*;
@@ -40,6 +42,9 @@ public class EtchedNeoForgeClient {
 
     private void clientInit(FMLClientSetupEvent event) {
         event.enqueueWork(EtchedClientSetup::registerItemProperties);
+        if (ModList.get().isLoaded("sable")) {
+            event.enqueueWork(SableCompat::load);
+        }
     }
 
     private void registerScreens(RegisterMenuScreensEvent event) {

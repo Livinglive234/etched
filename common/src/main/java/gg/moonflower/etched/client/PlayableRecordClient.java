@@ -3,6 +3,7 @@ package gg.moonflower.etched.client;
 import gg.moonflower.etched.api.record.AlbumCover;
 import gg.moonflower.etched.api.record.PlayableRecord;
 import gg.moonflower.etched.api.record.TrackData;
+import gg.moonflower.etched.api.sound.SoundPositions;
 import gg.moonflower.etched.api.sound.SoundTracker;
 import gg.moonflower.etched.api.sound.download.SoundSourceManager;
 import gg.moonflower.etched.api.sound.source.AudioSource;
@@ -45,7 +46,7 @@ public final class PlayableRecordClient {
 
     public static boolean canShowMessage(double x, double y, double z) {
         LocalPlayer player = Minecraft.getInstance().player;
-        return player == null || player.distanceToSqr(x, y, z) <= 4096.0;
+        return player == null || SoundPositions.distanceSquared(player.level(), player.getX(), player.getY(), player.getZ(), x, y, z) <= 4096.0;
     }
 
     /**

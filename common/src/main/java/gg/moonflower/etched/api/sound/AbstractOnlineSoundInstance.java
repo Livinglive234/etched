@@ -1,6 +1,7 @@
 package gg.moonflower.etched.api.sound;
 
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.client.resources.sounds.TickableSoundInstance;
 import net.minecraft.client.Camera;
 import gg.moonflower.etched.api.record.TrackData;
@@ -188,7 +189,8 @@ public class AbstractOnlineSoundInstance extends AbstractSoundInstance implement
             return 1.0F;
         }
 
-        double distance = Math.sqrt(camera.getPosition().distanceToSqr(this.x, this.y, this.z));
+        Vec3 eye = camera.getPosition();
+        double distance = Math.sqrt(SoundPositions.distanceSquared(client.level, eye.x, eye.y, eye.z, this.x, this.y, this.z));
         return (float) Math.max(0.0, 1.0 - distance / this.getRange());
     }
 

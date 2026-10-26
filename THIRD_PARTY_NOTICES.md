@@ -42,6 +42,7 @@ Both are included unchanged. The Fabric jar nests them, and the NeoForge jar inc
 ## Mods and services used but not shipped
 
 - [Forge Config API Port](https://modrinth.com/mod/forge-config-api-port) is required on Fabric for config files (MPL-2.0).
+- The [Sable companion library](https://github.com/ryanhcode) is only compiled against, and comes with Sable when it is installed.
 - [Create Fabric](https://github.com/Livinglive234/createfabric) and [JEI](https://github.com/mezz/JustEnoughItems) are only compiled against.
   Their support is used when the mods are installed. [Valkyrien Skies](https://modrinth.com/mod/valkyrien-skies) is reached by name and is not
   needed to build.
