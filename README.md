@@ -108,4 +108,5 @@ compiled against them.
 
 ## License
 
-See [LICENSE](LICENSE). The source code and the reserved game assets are covered by different terms there.
+See [LICENSE](LICENSE). The source code and the reserved game assets are covered by different terms there. Where code and ideas came from
+and the terms they come with are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), with copies of the fork licenses in [licenses/](licenses/).

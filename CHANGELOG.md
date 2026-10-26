@@ -1,3 +1,17 @@
+- Add Play, Stop and Close to the radio. Stop silences the radio for everyone and keeps its station
+- Add station playlists in PLS and M3U, with the first working entry as a fallback, and reconnect a radio that loses its connection
+- Show stream titles and a Now Playing header on the screens of radios, jukeboxes, album jukeboxes and boomboxes
+- Add music search to the radio (Radio Browser) and the etching table (SoundCloud)
+- Add names for radio stations and a list of recent stations
+- Add a volume setting to radios, album jukeboxes and vanilla jukeboxes, which also sets how far the music can be heard
+- Add a client option to mute the game's music while a radio, jukebox or boombox is heard
+- Fabric: add Create support, so radios and album jukeboxes keep playing and can be changed on a contraption
+- Fabric: hear radios and jukeboxes on Valkyrien Skies and Eureka ships from the ship
+- Fabric: hide JEI on the radio screens
+- Look up track info on the client for the etching table, and add size limits to playlists and service replies
+- Move to Gradle 8.14 and Loom 1.13, and add third party notices
+- The network protocol changed, so this version cannot join servers with an older one
+- NeoForge: builds and starts a server, but this release has not been played in game
 - Add support for Fabric
 - Fix SoundCloud playback and add AAC decoding
 - Fix radios and long tracks freezing the game
