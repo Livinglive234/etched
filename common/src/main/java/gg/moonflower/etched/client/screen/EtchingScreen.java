@@ -84,7 +84,7 @@ public class EtchingScreen extends AbstractContainerScreen<EtchingMenu> implemen
         });
         this.url.setCanLoseFocus(true);
         this.addRenderableWidget(this.url);
-        this.addRenderableWidget(MusicSearchScreen.createButton(this, List.of(MusicSearchScreen.SOUND_CLOUD, MusicSearchScreen.RADIO_BROWSER), this.leftPos + this.imageWidth - 21, this.topPos + 3, 14));
+        this.addRenderableWidget(MusicSearchScreen.createButton(this, List.of(MusicSearchScreen.SOUND_CLOUD), this.leftPos + this.imageWidth - 21, this.topPos + 3, 14));
         this.menu.addSlotListener(this);
     }
 

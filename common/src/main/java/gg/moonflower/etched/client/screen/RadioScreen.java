@@ -78,7 +78,7 @@ public class RadioScreen extends AbstractContainerScreen<RadioMenu> implements U
             RadioHistory.clear();
             this.history.setStations(List.of());
         }).bounds(this.leftPos + 8, this.topPos + 131 + NAME_HEIGHT, 160, 14).build());
-        this.addRenderableWidget(MusicSearchScreen.createButton(this, List.of(MusicSearchScreen.RADIO_BROWSER, MusicSearchScreen.SOUND_CLOUD), this.leftPos + this.imageWidth - 21, this.topPos + 3, 14));
+        this.addRenderableWidget(MusicSearchScreen.createButton(this, List.of(MusicSearchScreen.RADIO_BROWSER), this.leftPos + this.imageWidth - 21, this.topPos + 3, 14));
         int buttonWidth = (this.imageWidth - 8) / 3;
         int buttonY = this.topPos + this.imageHeight + 5;
         this.addRenderableWidget(Button.builder(Component.translatable("screen." + Etched.MOD_ID + ".radio.play"), button -> {

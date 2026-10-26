@@ -12,6 +12,7 @@ public class EtchedConfig {
         public Supplier<Boolean> forceStereo = () -> false;
         public Supplier<Boolean> smoothParrotAnimation = () -> true;
         public Supplier<Boolean> allowPrivateNetwork = () -> false;
+        public Supplier<Boolean> muteGameMusic = () -> true;
     }
 
     public static class Server {

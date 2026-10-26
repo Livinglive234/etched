@@ -34,7 +34,7 @@ Fabric port and no code or ideas were taken from it.
 | Play, Stop and Close on the radio | Fork, idea | Play applies the station and starts it, Stop silences the radio for everyone and keeps the station, and Close leaves the screen without changing anything. A failed connection is retried up to three times before giving up. The explicit states and bounded reconnects come from Re-Etched by oogabooga-dev. |
 | Named stations | Created here | A station can be given a name on the radio screen, which the recent stations list shows instead of the address. Names are kept on the client only, and a station picked from the music search is named after its result. |
 | Now Playing header on the screens of radios, album jukeboxes, jukeboxes and boomboxes | Created here | Shows the current track across the top, and on a radio the title the station reports, or Internet Radio when it reports none. |
-| Music search for radios and etching tables | Fork, code | A search button opens a screen that looks up stations on Radio Browser and tracks on SoundCloud. Ported from BazZziliuS without the Audius source. |
+| Music search for radios and etching tables | Fork, code | A search button opens a screen that looks up stations on Radio Browser from the radio, and tracks on SoundCloud from the etching table. Ported from BazZziliuS without the Audius source. |
 | Portal radio | Original | A radio variant with its own look. A radio becomes one with cake, or when a radio item is thrown into the nether. |
 | Vanilla jukebox plays Etched discs | Original | Etched discs and album covers can be put in the vanilla jukebox, which then gives a comparator signal. |
 
@@ -97,6 +97,7 @@ Fabric port and no code or ideas were taken from it.
 | Feature | Origin | Details |
 |---|---|---|
 | Force Stereo, Smooth Parrot Animation | Original | Client options. |
+| Mute Game Music | Created here | Client option, on by default. Stops the game's background music while a radio, jukebox or boombox of this mod can be heard. |
 | Use boombox menu, Use album cover menu | Original | Server options that swap right-clicking discs for a menu. |
 | Allow Private Network Stations | Fork, idea | See network safety above. |
 | 13 language files | Original | English plus translations by the community. |

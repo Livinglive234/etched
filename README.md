@@ -27,7 +27,7 @@ The full list is in [docs/features.md](docs/features.md), with where each featur
   station reports, or Internet Radio when there is none.
 - **Volume.** Radios, album jukeboxes and, by sneaking and using with empty hands, vanilla jukeboxes have a volume setting. A lower
   volume also lowers how far away the music can be heard.
-- **Music search.** Search Radio Browser and SoundCloud from the radio and the etching table.
+- **Music search.** Search Radio Browser from the radio and SoundCloud from the etching table.
 - **Sources.** Direct links to OGG, WAV, MP3 and AAC, SoundCloud, Bandcamp, Google Drive and Dropbox share links, M3U and HLS streams, and
   radio playlists in PLS and M3U with the first working entry used as a fallback.
 - **Create and Valkyrien Skies (Fabric only).** Radios, album jukeboxes and jukeboxes keep playing while mounted on a Create contraption, such as

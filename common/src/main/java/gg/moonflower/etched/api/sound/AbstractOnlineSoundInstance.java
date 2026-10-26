@@ -16,6 +16,7 @@ import gg.moonflower.etched.api.util.Mp3InputStream;
 import gg.moonflower.etched.api.util.StreamingInputStream;
 import gg.moonflower.etched.api.util.WaveDataReader;
 import gg.moonflower.etched.client.sound.EmptyAudioStream;
+import gg.moonflower.etched.client.sound.MusicDucker;
 import gg.moonflower.etched.client.sound.SoundCache;
 import gg.moonflower.etched.core.Etched;
 import net.minecraft.Util;
@@ -69,6 +70,7 @@ public class AbstractOnlineSoundInstance extends AbstractSoundInstance implement
         this.stereo = Etched.CLIENT_CONFIG.forceStereo.get() || stereo;
         this.gain = 1.0F;
         this.rangeScale = 1.0F;
+        MusicDucker.track(this);
     }
 
     private static AudioStream getStream(AudioStream stream, Sound sound) {

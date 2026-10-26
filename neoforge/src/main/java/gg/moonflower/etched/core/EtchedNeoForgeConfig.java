@@ -14,12 +14,14 @@ public class EtchedNeoForgeConfig {
         clientBuilder.push("Game Feel");
         ModConfigSpec.BooleanValue forceStereo = clientBuilder.comment("Always plays tracks in stereo even when in-world").define("Force Stereo", false);
         ModConfigSpec.BooleanValue smoothParrotAnimation = clientBuilder.comment("Makes the parrot dance animation smoother").define("Smooth Parrot Animation", true);
+        ModConfigSpec.BooleanValue muteGameMusic = clientBuilder.comment("Stops the game's background music while a radio, jukebox or boombox of this mod can be heard").define("Mute Game Music", true);
         clientBuilder.pop();
         clientBuilder.push("Network");
         ModConfigSpec.BooleanValue allowPrivateNetwork = clientBuilder.comment("Allows radios, tracks and covers to connect to addresses on private networks and this computer. Only enable this with servers you trust, since they could make your game send requests to other devices on your network").define("Allow Private Network Stations", false);
         clientBuilder.pop();
         Etched.CLIENT_CONFIG.allowPrivateNetwork = allowPrivateNetwork::get;
         Etched.CLIENT_CONFIG.forceStereo = forceStereo::get;
+        Etched.CLIENT_CONFIG.muteGameMusic = muteGameMusic::get;
         Etched.CLIENT_CONFIG.smoothParrotAnimation = smoothParrotAnimation::get;
 
         ModConfigSpec.Builder serverBuilder = new ModConfigSpec.Builder();
