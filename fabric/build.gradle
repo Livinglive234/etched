@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.9.2'
+    id 'fabric-loom' version '1.13.6'
 }
 
 repositories {
@@ -8,6 +8,20 @@ repositories {
     maven {
         url 'https://maven.parchmentmc.net/'
         content { includeGroup 'org.parchmentmc.data' }
+    }
+    // Create is only needed to compile the optional Create support, which is the release published for Create Fabric 6.0.10
+    exclusiveContent {
+        forRepository {
+            ivy {
+                name = 'Create Fabric releases'
+                url = 'https://github.com/Livinglive234'
+                patternLayout {
+                    artifact '[module]/releases/download/v[revision]/create-fabric-[revision]+mc1.21.1-build.[classifier].[ext]'
+                }
+                metadataSources { artifact() }
+            }
+        }
+        filter { includeGroup 'com.github.livinglive234' }
     }
 }
 
@@ -33,6 +47,8 @@ dependencies {
     runtimeOnly "com.electronwill.night-config:core:3.8.0"
     runtimeOnly "com.electronwill.night-config:toml:3.8.0"
 
+    modCompileOnly "com.github.livinglive234:createfabric:${create_fabric_version}:${create_fabric_build}@jar"
+
     compileOnly project(':common')
     commonJava project(path: ':common', configuration: 'commonJava')
     commonResources project(path: ':common', configuration: 'commonResources')
@@ -52,6 +68,7 @@ loom {
     accessWidenerPath = file('src/main/resources/etched.accesswidener')
 
     mixin {
+        useLegacyMixinAp = true
         defaultRefmapName = 'etched.refmap.json'
     }
 
