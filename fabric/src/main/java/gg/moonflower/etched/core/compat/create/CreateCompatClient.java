@@ -7,6 +7,7 @@ import gg.moonflower.etched.api.sound.StopListeningSound;
 import gg.moonflower.etched.api.sound.source.AudioSource;
 import gg.moonflower.etched.api.sound.AbstractOnlineSoundInstance;
 import gg.moonflower.etched.core.Etched;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.core.HolderLookup;
@@ -29,7 +30,7 @@ import java.util.Optional;
 /**
  * The client side of the Create support, which starts and stops the sounds of mounted radios and jukeboxes.
  */
-final class CreateCompatClient {
+public final class CreateCompatClient {
 
     private static final Component RADIO = Component.translatable("sound_source." + Etched.MOD_ID + ".radio");
     private static final int ALBUM_JUKEBOX_SIZE = 9;
@@ -37,6 +38,17 @@ final class CreateCompatClient {
     private static final int JUKEBOX_RANGE = 16;
 
     private CreateCompatClient() {
+    }
+
+    /**
+     * Applies the changes the server makes to the data of radios and jukeboxes on contraptions.
+     */
+    public static void registerReceiver() {
+        ClientPlayNetworking.registerGlobalReceiver(ClientboundContraptionBlockDataPacket.TYPE, (packet, context) -> {
+            if (context.client().level != null) {
+                CreateCompat.applyBlockData(ContraptionAccess.contraption(context.client().level.getEntity(packet.entityId())), packet.localPos(), packet.data());
+            }
+        });
     }
 
     static void tickRadio(MovementContext context) {

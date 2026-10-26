@@ -20,7 +20,7 @@ Sources are read-only references:
 
 | Feature | From | Notes |
 |---|---|---|
-| Create contraption support on NeoForge, and changing mounted radios and jukeboxes | BazZziliuS, `6fa2930`, `d10b9b4`, `8a0dfc5`, `0cd76ac` | Playing on a Fabric contraption is done. Missing are the NeoForge version, and the moving interactions that open the radio and album jukebox screens on a contraption so the station, discs and volume can be changed while mounted. The last commit fixes a crash with Create Connected. |
+| Create contraption support on NeoForge | BazZziliuS, `6fa2930`, `d10b9b4`, `8a0dfc5`, `0cd76ac` | The Fabric version, with editing while mounted, is done. The NeoForge version is not. The last commit fixes a crash with Create Connected. |
 | Sable sub-level distance checks | BazZziliuS, `d10b9b4` | NeoForge only. Uses the Sable companion library so sounds on sub-levels are heard from the right distance. |
 
 ## Album covers

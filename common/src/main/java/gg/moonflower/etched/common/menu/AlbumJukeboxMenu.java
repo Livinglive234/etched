@@ -16,6 +16,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import java.util.function.Consumer;
+
 /**
  * @author Ocelot
  */
@@ -24,16 +26,40 @@ public class AlbumJukeboxMenu extends AbstractContainerMenu implements SoundSett
     private final BlockPos pos;
     private final Container container;
     private final Player player;
+    private final boolean moving;
+    private final float initialVolume;
+    private final Consumer<Float> volumeSetter;
 
-    public AlbumJukeboxMenu(int containerId, Inventory inventory, BlockPos pos) {
-        this(containerId, inventory, new SimpleContainer(9), pos);
+    /**
+     * The client side
+     *
+     * @param moving Whether the jukebox is on a moving contraption, where the position is not a position in the world
+     */
+    public AlbumJukeboxMenu(int containerId, Inventory inventory, BlockPos pos, boolean moving, float volume) {
+        this(containerId, inventory, new SimpleContainer(9), pos, moving, volume, null);
     }
 
     public AlbumJukeboxMenu(int containerId, Inventory inventory, Container container, BlockPos pos) {
+        this(containerId, inventory, container, pos, false, container instanceof VolumeControlled controlled ? controlled.getVolume() : 1.0F, null);
+    }
+
+    /**
+     * Creates the menu of a jukebox that is not a block in the world, such as one on a contraption.
+     *
+     * @param volumeSetter Changes the volume of the jukebox
+     */
+    public AlbumJukeboxMenu(int containerId, Inventory inventory, Container container, BlockPos pos, float volume, Consumer<Float> volumeSetter) {
+        this(containerId, inventory, container, pos, true, volume, volumeSetter);
+    }
+
+    private AlbumJukeboxMenu(int containerId, Inventory inventory, Container container, BlockPos pos, boolean moving, float volume, Consumer<Float> volumeSetter) {
         super(EtchedMenus.ALBUM_JUKEBOX_MENU.get(), containerId);
         checkContainerSize(container, 9);
         this.container = container;
         this.player = inventory.player;
+        this.moving = moving;
+        this.initialVolume = volume;
+        this.volumeSetter = volumeSetter;
         container.startOpen(inventory.player);
         this.pos = pos;
 
@@ -69,7 +95,9 @@ public class AlbumJukeboxMenu extends AbstractContainerMenu implements SoundSett
 
     @Override
     public void setVolume(float volume) {
-        if (this.player.level().getBlockEntity(this.pos) instanceof VolumeControlled jukebox) {
+        if (this.volumeSetter != null) {
+            this.volumeSetter.accept(volume);
+        } else if (!this.moving && this.player.level().getBlockEntity(this.pos) instanceof VolumeControlled jukebox) {
             jukebox.setVolume(volume);
         }
     }
@@ -118,5 +146,19 @@ public class AlbumJukeboxMenu extends AbstractContainerMenu implements SoundSett
 
     public BlockPos getPos() {
         return this.pos;
+    }
+
+    /**
+     * @return Whether the jukebox is on a moving contraption instead of in the world
+     */
+    public boolean isMoving() {
+        return this.moving;
+    }
+
+    /**
+     * @return The volume of the jukebox before opening the menu
+     */
+    public float getInitialVolume() {
+        return this.initialVolume;
     }
 }

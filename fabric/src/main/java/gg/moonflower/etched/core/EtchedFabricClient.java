@@ -8,6 +8,7 @@ import gg.moonflower.etched.client.screen.*;
 import gg.moonflower.etched.core.registry.EtchedEntities;
 import gg.moonflower.etched.core.registry.EtchedItems;
 import gg.moonflower.etched.core.registry.EtchedMenus;
+import gg.moonflower.etched.core.compat.create.CreateCompatClient;
 import gg.moonflower.etched.core.compat.vs.ValkyrienSkiesCompat;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
@@ -35,6 +36,9 @@ public class EtchedFabricClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         EtchedClientSetup.registerItemProperties();
+        if (FabricLoader.getInstance().isModLoaded("create")) {
+            CreateCompatClient.registerReceiver();
+        }
         if (FabricLoader.getInstance().isModLoaded("valkyrienskies")) {
             ValkyrienSkiesCompat.load();
         }

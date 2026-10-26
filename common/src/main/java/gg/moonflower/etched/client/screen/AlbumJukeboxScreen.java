@@ -51,7 +51,7 @@ public class AlbumJukeboxScreen extends AbstractContainerScreen<AlbumJukeboxMenu
         }
 
         BlockEntity blockEntity = level.getBlockEntity(this.menu.getPos());
-        if (!(blockEntity instanceof AlbumJukeboxBlockEntity jukebox) || !jukebox.isPlaying()) {
+        if (this.menu.isMoving() || !(blockEntity instanceof AlbumJukeboxBlockEntity jukebox) || !jukebox.isPlaying()) {
             return;
         }
 
@@ -75,13 +75,15 @@ public class AlbumJukeboxScreen extends AbstractContainerScreen<AlbumJukeboxMenu
 
         int buttonPadding = 6;
         Font font = Minecraft.getInstance().font;
-        this.addRenderableWidget(Button.builder(PREVIOUS, b -> this.update(false))
-                .bounds(this.leftPos + 3 + (58 - font.width(PREVIOUS)) / 2 - buttonPadding, this.topPos + 33, font.width(PREVIOUS) + 2 * buttonPadding, 20)
-                .build());
-        this.addRenderableWidget(Button.builder(NEXT, b -> this.update(true))
-                .bounds(this.leftPos + 115 + (58 - font.width(NEXT)) / 2 - buttonPadding, this.topPos + 33, font.width(NEXT) + 2 * buttonPadding, 20)
-                .build());
-        float volume = this.minecraft.level != null && this.minecraft.level.getBlockEntity(this.menu.getPos()) instanceof VolumeControlled controlled ? controlled.getVolume() : 1.0F;
+        if (!this.menu.isMoving()) { // Choosing the track needs the jukebox block
+            this.addRenderableWidget(Button.builder(PREVIOUS, b -> this.update(false))
+                    .bounds(this.leftPos + 3 + (58 - font.width(PREVIOUS)) / 2 - buttonPadding, this.topPos + 33, font.width(PREVIOUS) + 2 * buttonPadding, 20)
+                    .build());
+            this.addRenderableWidget(Button.builder(NEXT, b -> this.update(true))
+                    .bounds(this.leftPos + 115 + (58 - font.width(NEXT)) / 2 - buttonPadding, this.topPos + 33, font.width(NEXT) + 2 * buttonPadding, 20)
+                    .build());
+        }
+        float volume = this.menu.getInitialVolume();
         this.addRenderableWidget(new SettingSlider(this.leftPos + 7, this.topPos + 17, 52, 14, "screen." + Etched.MOD_ID + ".volume.short", 0, 100, Math.round(volume * 100.0F), value -> EtchedPlatform.get().sendToServer(new ServerboundSoundSettingsPacket(value / 100.0F))));
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
     }
@@ -98,7 +100,7 @@ public class AlbumJukeboxScreen extends AbstractContainerScreen<AlbumJukeboxMenu
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         super.render(graphics, mouseX, mouseY, partialTick);
-        if (this.minecraft.level != null && SoundTracker.isPlayingAt(this.menu.getPos()) && this.playingIndex >= 0 && this.minecraft.level.getBlockEntity(this.menu.getPos()) instanceof AlbumJukeboxBlockEntity jukebox) {
+        if (!this.menu.isMoving() && this.minecraft.level != null && SoundTracker.isPlayingAt(this.menu.getPos()) && this.playingIndex >= 0 && this.minecraft.level.getBlockEntity(this.menu.getPos()) instanceof AlbumJukeboxBlockEntity jukebox) {
             List<TrackData> tracks = PlayableRecord.getTracks(this.minecraft.level.registryAccess(), jukebox.getItem(this.playingIndex));
             NowPlayingHeader.render(graphics, this.font, this.width, this.topPos, this.playingTrack >= 0 && this.playingTrack < tracks.size() ? tracks.get(this.playingTrack).getDisplayName() : NowPlayingHeader.forRecord(this.minecraft.level.registryAccess(), jukebox.getItem(this.playingIndex)));
         }
@@ -115,7 +117,7 @@ public class AlbumJukeboxScreen extends AbstractContainerScreen<AlbumJukeboxMenu
         this.playingIndex = -1;
         this.playingTrack = 0;
         ClientLevel level = this.minecraft.level;
-        if (level == null) {
+        if (level == null || this.menu.isMoving()) {
             return;
         }
 

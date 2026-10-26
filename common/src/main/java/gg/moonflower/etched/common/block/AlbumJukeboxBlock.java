@@ -63,7 +63,11 @@ public class AlbumJukeboxBlock extends BaseEntityBlock {
         }
 
         if (level.getBlockEntity(pos) instanceof AlbumJukeboxBlockEntity jukebox) {
-            EtchedPlatform.get().openMenu((ServerPlayer) player, jukebox, buf -> buf.writeBlockPos(pos));
+            EtchedPlatform.get().openMenu((ServerPlayer) player, jukebox, buf -> {
+                buf.writeBlockPos(pos);
+                buf.writeBoolean(false);
+                buf.writeFloat(jukebox.getVolume());
+            });
         }
         // TODO: stats
         return ItemInteractionResult.CONSUME;

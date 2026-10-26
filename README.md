@@ -30,7 +30,9 @@ The full list is in [docs/features.md](docs/features.md), with where each featur
 - **Music search.** Search Radio Browser and SoundCloud from the radio and the etching table.
 - **Sources.** Direct links to OGG, WAV, MP3 and AAC, SoundCloud, Bandcamp, Google Drive and Dropbox share links, M3U and HLS streams, and
   radio playlists in PLS and M3U with the first working entry used as a fallback.
-- **Create (Fabric only).** Radios, album jukeboxes and jukeboxes keep playing while mounted on a Create contraption such as a train.
+- **Create and Valkyrien Skies (Fabric only).** Radios, album jukeboxes and jukeboxes keep playing while mounted on a Create contraption, such as
+  a train, and radios and album jukeboxes can be opened and changed while they move. Radios and jukeboxes on Valkyrien Skies ships, such as
+  Eureka ships, are heard from where the ship is.
 - **Compatibility.** Amendments' jukebox look is supported, and parrots dance to anything playing nearby.
 
 ## Using the radio
@@ -40,11 +42,13 @@ Open a radio and paste a stream address, or press the magnifier to search. The a
 without changing anything. Give a station a name in the name box and it appears under that name in the recent stations list. Names
 and the list are kept on your computer only.
 
-## Create
+## Create and ships
 
 Create support is built into the Fabric jar and only used when Create Fabric is installed. It was written against Create Fabric 6.0.10.
-A radio plays the station it had when the contraption was assembled, and a jukebox plays its discs. Changing a radio or a jukebox while
-it is mounted is not supported yet.
+A radio or jukebox on a contraption plays what it had when the contraption was assembled, and right-clicking a radio or album jukebox on
+it opens its screen, so you can change the station, the discs or the volume while it moves. A vanilla jukebox on a contraption plays but
+cannot be changed. Radios and jukeboxes on Valkyrien Skies ships, such as Eureka ships, are heard from where the ship is. The ship support
+has not been played on a ship yet.
 
 ## Building
 

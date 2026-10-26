@@ -90,7 +90,7 @@ public class RadioScreen extends AbstractContainerScreen<RadioMenu> implements U
             EtchedPlatform.get().sendToServer(new SetUrlPacket(this.url.getValue()));
             EtchedPlatform.get().sendToServer(new ServerboundRadioControlPacket(false));
             // A station that is already set will not change, so a radio that gave up has to be started here
-            if (this.minecraft.level != null && this.minecraft.level.getBlockEntity(this.menu.getPos()) instanceof RadioBlockEntity radio && this.url.getValue().equals(radio.getUrl())) {
+            if (!this.menu.isMoving() && this.minecraft.level != null && this.minecraft.level.getBlockEntity(this.menu.getPos()) instanceof RadioBlockEntity radio && this.url.getValue().equals(radio.getUrl())) {
                 SoundTracker.restartRadio(this.minecraft.level, this.menu.getPos());
             }
         }).bounds(this.leftPos, buttonY, buttonWidth, 20).build());
@@ -104,8 +104,10 @@ public class RadioScreen extends AbstractContainerScreen<RadioMenu> implements U
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        int attempt = RadioSession.reconnectAttempt(this.menu.getPos());
-        if (attempt > 0) {
+        int attempt = this.menu.isMoving() ? 0 : RadioSession.reconnectAttempt(this.menu.getPos());
+        if (this.menu.isMoving()) {
+            // A radio on a contraption has no block in the world to look up
+        } else if (attempt > 0) {
             NowPlayingHeader.render(guiGraphics, this.font, this.width, this.topPos, Component.translatable("screen." + Etched.MOD_ID + ".radio.reconnecting", attempt, RadioSession.MAX_RECONNECTS));
         } else if (this.minecraft.level != null && SoundTracker.isPlayingAt(this.menu.getPos())) {
             String station = this.minecraft.level.getBlockEntity(this.menu.getPos()) instanceof RadioBlockEntity radio && radio.getUrl() != null ? radio.getUrl() : this.menu.getInitialUrl();

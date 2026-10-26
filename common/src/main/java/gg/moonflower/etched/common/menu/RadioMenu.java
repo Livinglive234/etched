@@ -14,22 +14,72 @@ import net.minecraft.world.item.ItemStack;
  */
 public class RadioMenu extends AbstractContainerMenu implements UrlMenu, SoundSettingsMenu {
 
-    private final ContainerLevelAccess access;
+    private final Controls controls;
+    private final boolean moving;
     private String initialUrl;
     private float initialVolume = 1.0F;
 
     private BlockPos pos = BlockPos.ZERO;
 
-    public RadioMenu(int id, BlockPos pos, String url, float volume) {
-        this(id, ContainerLevelAccess.NULL);
+    /**
+     * The client side, which only needs to know what the radio was set to
+     *
+     * @param moving Whether the radio is on a moving contraption, where the position is not a position in the world
+     */
+    public RadioMenu(int id, BlockPos pos, boolean moving, String url, float volume) {
+        this(id, Controls.NONE, moving);
         this.pos = pos;
         this.initialUrl = url;
         this.initialVolume = volume;
     }
 
     public RadioMenu(int id, ContainerLevelAccess access) {
+        this(id, new Controls() {
+            @Override
+            public boolean stillValid(Player player) {
+                return AbstractContainerMenu.stillValid(access, player, EtchedBlocks.RADIO.get());
+            }
+
+            @Override
+            public void setUrl(String url) {
+                access.execute((level, pos) -> {
+                    if (level.getBlockEntity(pos) instanceof RadioBlockEntity be) {
+                        be.setUrl(url);
+                    }
+                });
+            }
+
+            @Override
+            public void setStopped(boolean stopped) {
+                access.execute((level, pos) -> {
+                    if (level.getBlockEntity(pos) instanceof RadioBlockEntity be) {
+                        be.setStopped(stopped);
+                    }
+                });
+            }
+
+            @Override
+            public void setVolume(float volume) {
+                access.execute((level, pos) -> {
+                    if (level.getBlockEntity(pos) instanceof RadioBlockEntity be) {
+                        be.setVolume(volume);
+                    }
+                });
+            }
+        }, false);
+    }
+
+    /**
+     * Creates the menu of a radio that is not a block in the world, such as one on a contraption.
+     */
+    public RadioMenu(int id, Controls controls) {
+        this(id, controls, true);
+    }
+
+    private RadioMenu(int id, Controls controls, boolean moving) {
         super(EtchedMenus.RADIO_MENU.get(), id);
-        this.access = access;
+        this.controls = controls;
+        this.moving = moving;
     }
 
     @Override
@@ -39,36 +89,24 @@ public class RadioMenu extends AbstractContainerMenu implements UrlMenu, SoundSe
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(this.access, player, EtchedBlocks.RADIO.get());
+        return this.controls.stillValid(player);
     }
 
     @Override
     public void setUrl(String url) {
-        this.access.execute((level, pos) -> {
-            if (level.getBlockEntity(pos) instanceof RadioBlockEntity be) {
-                be.setUrl(url);
-            }
-        });
+        this.controls.setUrl(url);
     }
 
     /**
      * Stops or starts the radio for everyone without changing its station.
      */
     public void setStopped(boolean stopped) {
-        this.access.execute((level, pos) -> {
-            if (level.getBlockEntity(pos) instanceof RadioBlockEntity be) {
-                be.setStopped(stopped);
-            }
-        });
+        this.controls.setStopped(stopped);
     }
 
     @Override
     public void setVolume(float volume) {
-        this.access.execute((level, pos) -> {
-            if (level.getBlockEntity(pos) instanceof RadioBlockEntity be) {
-                be.setVolume(volume);
-            }
-        });
+        this.controls.setVolume(volume);
     }
 
     /**
@@ -79,13 +117,56 @@ public class RadioMenu extends AbstractContainerMenu implements UrlMenu, SoundSe
     }
 
     /**
-     * @return The original URL inside the radio before opening the menu
+     * @return The position of the radio on the client. On a contraption it is a position inside the contraption
      */
     public BlockPos getPos() {
         return this.pos;
     }
 
+    /**
+     * @return Whether the radio is on a moving contraption instead of in the world
+     */
+    public boolean isMoving() {
+        return this.moving;
+    }
+
+    /**
+     * @return The original URL inside the radio before opening the menu
+     */
     public String getInitialUrl() {
         return this.initialUrl;
+    }
+
+    /**
+     * What the menu does to the radio it was opened for.
+     */
+    public interface Controls {
+
+        Controls NONE = new Controls() {
+            @Override
+            public boolean stillValid(Player player) {
+                return false;
+            }
+
+            @Override
+            public void setUrl(String url) {
+            }
+
+            @Override
+            public void setStopped(boolean stopped) {
+            }
+
+            @Override
+            public void setVolume(float volume) {
+            }
+        };
+
+        boolean stillValid(Player player);
+
+        void setUrl(String url);
+
+        void setStopped(boolean stopped);
+
+        void setVolume(float volume);
     }
 }
