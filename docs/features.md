@@ -29,7 +29,7 @@ Fabric port and no code or ideas were taken from it.
 | Jukebox minecart | Original | A minecart that plays a disc, started again by an activator rail. |
 | Album jukebox | Original | A jukebox that holds several discs, with a screen to choose the track. |
 | Radio | Original | Plays an internet radio stream from a URL, with a menu to set it, and stops while it is powered by redstone. |
-| Volume slider on radios and album jukeboxes | Fork, code and idea | Lowering the volume also lowers how far away the music can be heard, and applies while it plays. The slider and the distance fade come from the sound settings of BazZziliuS. A single volume that also sets the range is how it works here. |
+| Volume slider on radios, album jukeboxes and jukeboxes | Fork, code and idea | Lowering the volume also lowers how far away the music can be heard, and applies while it plays. Sneak and use a vanilla jukebox with empty hands to open its volume menu. The slider and the distance fade come from the sound settings of BazZziliuS. A single volume that also sets the range, and the vanilla jukebox support, are done here. |
 | Station history on the radio screen | Fork, idea | The last 20 stations used in each world or server, kept only on the client with hashed world and server names, with a scrollable list and a clear button. Picking one fills the URL box. The idea comes from Re-Etched by oogabooga-dev. |
 | Portal radio | Original | A radio variant with its own look. A radio becomes one with cake, or when a radio item is thrown into the nether. |
 | Vanilla jukebox plays Etched discs | Original | Etched discs and album covers can be put in the vanilla jukebox, which then gives a comparator signal. |

@@ -48,6 +48,7 @@ public class EtchedNeoForgeClient {
         event.register(EtchedMenus.BOOMBOX_MENU.get(), BoomboxScreen::new);
         event.register(EtchedMenus.ALBUM_COVER_MENU.get(), AlbumCoverScreen::new);
         event.register(EtchedMenus.RADIO_MENU.get(), RadioScreen::new);
+        event.register(EtchedMenus.JUKEBOX_SETTINGS_MENU.get(), JukeboxSettingsScreen::new);
     }
 
     private void registerClientExtensions(RegisterClientExtensionsEvent event) {

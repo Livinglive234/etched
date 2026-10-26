@@ -39,6 +39,7 @@ public class EtchedFabricClient implements ClientModInitializer {
         MenuScreens.register(EtchedMenus.BOOMBOX_MENU.get(), BoomboxScreen::new);
         MenuScreens.register(EtchedMenus.ALBUM_COVER_MENU.get(), AlbumCoverScreen::new);
         MenuScreens.register(EtchedMenus.RADIO_MENU.get(), RadioScreen::new);
+        MenuScreens.register(EtchedMenus.JUKEBOX_SETTINGS_MENU.get(), JukeboxSettingsScreen::new);
 
         BuiltinItemRendererRegistry.INSTANCE.register(EtchedItems.ALBUM_COVER.get(), (stack, mode, matrices, buffers, light, overlay) -> AlbumCoverItemRenderer.INSTANCE.renderByItem(stack, mode, matrices, buffers, light, overlay));
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new IdentifiableResourceReloadListener() {

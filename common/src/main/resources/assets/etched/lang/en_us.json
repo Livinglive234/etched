@@ -31,6 +31,7 @@
   "screen.etched.radio.history": "Recent stations",
   "screen.etched.radio.history.empty": "No recent stations",
   "screen.etched.radio.history.clear": "Clear history",
+  "container.etched.jukebox_settings": "Jukebox Volume",
   "screen.etched.volume": "Volume: %s%%",
   "screen.etched.volume.short": "Vol: %s%%",
   "screen.etched.album_jukebox.next": "Next",

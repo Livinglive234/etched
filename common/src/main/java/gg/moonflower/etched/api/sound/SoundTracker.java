@@ -205,6 +205,28 @@ public class SoundTracker {
     }
 
     /**
+     * Applies a new volume to a vanilla jukebox. A record played by the sound tracker changes at once. The sound of a vanilla record cannot
+     * change its volume or range while it plays, so it starts again with a sound that can.
+     *
+     * @param level  The level of the jukebox
+     * @param pos    The position of the jukebox
+     * @param jukebox The jukebox
+     * @param volume The new volume from 0 to 1
+     */
+    public static void onJukeboxVolumeChanged(net.minecraft.world.level.Level level, BlockPos pos, net.minecraft.world.level.block.entity.JukeboxBlockEntity jukebox, float volume) {
+        SoundInstance sound = ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).getPlayingJukeboxSongs().get(pos);
+        while (sound instanceof WrappedSoundInstance wrapped) {
+            sound = wrapped.getParent();
+        }
+
+        if (sound instanceof AbstractOnlineSoundInstance) {
+            setBlockVolume(pos, volume);
+        } else if (sound != null) {
+            net.minecraft.world.item.JukeboxSong.fromStack(level.registryAccess(), jukebox.getTheItem()).ifPresent(song -> Minecraft.getInstance().levelRenderer.playJukeboxSong(song, pos));
+        }
+    }
+
+    /**
      * Changes the volume of the record playing at a position without restarting it.
      *
      * @param pos    The position of the block playing the record

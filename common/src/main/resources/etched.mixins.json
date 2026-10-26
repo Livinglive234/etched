@@ -26,6 +26,7 @@
     "VillagerGoalPackagesMixin",
     "component.JukeboxSongMixin",
     "jukebox.JukeboxBlockEntityAccessor",
+    "jukebox.JukeboxBlockMixin",
     "jukebox.JukeboxBlockEntityMixin",
     "jukebox.JukeboxPlayableMixin",
     "jukebox.JukeboxSongPlayerAccessor"

@@ -1,5 +1,9 @@
 package gg.moonflower.etched.core.mixin.client.render;
 
+import gg.moonflower.etched.common.blockentity.VolumeControlled;
+import gg.moonflower.etched.api.sound.source.AudioSource;
+import gg.moonflower.etched.api.sound.SoundTracker;
+import gg.moonflower.etched.api.sound.AbstractOnlineSoundInstance;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import gg.moonflower.etched.api.record.PlayableRecord;
@@ -50,6 +54,13 @@ public abstract class LevelRendererMixin {
 
     @Inject(method = "playJukeboxSong", at = @At(value = "INVOKE", target = "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", shift = At.Shift.BEFORE), remap = false)
     public void modifySoundInstance(Holder<JukeboxSong> song, BlockPos pos, CallbackInfo ci, @Local LocalRef<SoundInstance> sound) {
+        // The sound of a vanilla record cannot change its volume or range, so jukeboxes with their own volume play it with our sound
+        if (this.level.getBlockEntity(pos) instanceof VolumeControlled controlled && controlled.getVolume() != 1.0F) {
+            AbstractOnlineSoundInstance custom = SoundTracker.getEtchedRecord(song.value().soundEvent().value().getLocation().toString(), song.value().description(), this.level, pos, 16, AudioSource.AudioFileType.FILE);
+            if (custom != null) {
+                sound.set(custom);
+            }
+        }
         sound.set(StopListeningSound.create(sound.get(), () -> this.notifyNearbyEntities(this.level, this.etched$pos, false)));
     }
 }
