@@ -7,6 +7,7 @@ import gg.moonflower.etched.common.blockentity.RadioBlockEntity;
 import gg.moonflower.etched.client.radio.history.RadioHistory;
 import gg.moonflower.etched.client.radio.history.StationNames;
 import net.minecraft.ChatFormatting;
+import gg.moonflower.etched.common.network.play.ServerboundRadioControlPacket;
 import gg.moonflower.etched.common.network.play.ServerboundSoundSettingsPacket;
 import gg.moonflower.etched.platform.EtchedPlatform;
 import gg.moonflower.etched.common.menu.RadioMenu;
@@ -87,17 +88,14 @@ public class RadioScreen extends AbstractContainerScreen<RadioMenu> implements U
                 this.history.setStations(RadioHistory.entries());
             }
             EtchedPlatform.get().sendToServer(new SetUrlPacket(this.url.getValue()));
-            // A station that is already set will not change, so it has to be started here
+            EtchedPlatform.get().sendToServer(new ServerboundRadioControlPacket(false));
+            // A station that is already set will not change, so a radio that gave up has to be started here
             if (this.minecraft.level != null && this.minecraft.level.getBlockEntity(this.menu.getPos()) instanceof RadioBlockEntity radio && this.url.getValue().equals(radio.getUrl())) {
                 SoundTracker.restartRadio(this.minecraft.level, this.menu.getPos());
-            } else {
-                RadioSession.resume(this.menu.getPos());
             }
         }).bounds(this.leftPos, buttonY, buttonWidth, 20).build());
         this.addRenderableWidget(Button.builder(Component.translatable("screen." + Etched.MOD_ID + ".radio.stop"), button -> {
-            if (this.minecraft.level != null) {
-                SoundTracker.stopRadio(this.minecraft.level, this.menu.getPos());
-            }
+            EtchedPlatform.get().sendToServer(new ServerboundRadioControlPacket(true));
         }).bounds(this.leftPos + buttonWidth + 4, buttonY, buttonWidth, 20).build());
         this.addRenderableWidget(Button.builder(Component.translatable("screen." + Etched.MOD_ID + ".radio.close"), button -> Minecraft.getInstance().player.closeContainer())
                 .bounds(this.leftPos + 2 * (buttonWidth + 4), buttonY, this.imageWidth - 2 * (buttonWidth + 4), 20).build());

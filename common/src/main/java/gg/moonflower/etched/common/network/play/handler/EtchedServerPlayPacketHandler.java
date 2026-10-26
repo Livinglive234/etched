@@ -1,6 +1,8 @@
 package gg.moonflower.etched.common.network.play.handler;
 
+import gg.moonflower.etched.common.network.play.ServerboundRadioControlPacket;
 import gg.moonflower.etched.common.network.play.ServerboundSoundSettingsPacket;
+import gg.moonflower.etched.common.menu.RadioMenu;
 import gg.moonflower.etched.common.menu.SoundSettingsMenu;
 import gg.moonflower.etched.platform.EtchedPlatform;
 import gg.moonflower.etched.common.component.MusicLabelComponent;
@@ -35,6 +37,12 @@ public class EtchedServerPlayPacketHandler {
     public static void handleSoundSettings(ServerboundSoundSettingsPacket pkt, Player player) {
         if (player.containerMenu instanceof SoundSettingsMenu menu && Float.isFinite(pkt.volume())) {
             menu.setVolume(Math.max(0.0F, Math.min(1.0F, pkt.volume())));
+        }
+    }
+
+    public static void handleRadioControl(ServerboundRadioControlPacket pkt, Player player) {
+        if (player.containerMenu instanceof RadioMenu menu) {
+            menu.setStopped(pkt.stopped());
         }
     }
 

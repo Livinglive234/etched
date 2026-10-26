@@ -10,7 +10,7 @@ public class EtchedMessages {
     /**
      * The network protocol version of the Etched payloads. Raised when the radio menu started to send the volume.
      */
-    public static final String VERSION = "6";
+    public static final String VERSION = "7";
 
     public static void init(PacketRegistry registry) {
         // Client
@@ -23,6 +23,7 @@ public class EtchedMessages {
         // Optional so clients without it can still join. The server resolves the tracks itself for them
         registry.playToServerOptional(ServerboundEtchTrackDataPacket.TYPE, ServerboundEtchTrackDataPacket.CODEC, EtchedServerPlayPacketHandler::handleEtchTrackData);
 
+        registry.playToServer(ServerboundRadioControlPacket.TYPE, ServerboundRadioControlPacket.CODEC, EtchedServerPlayPacketHandler::handleRadioControl);
         registry.playToServer(ServerboundSoundSettingsPacket.TYPE, ServerboundSoundSettingsPacket.CODEC, EtchedServerPlayPacketHandler::handleSoundSettings);
 
         // Bidirectional

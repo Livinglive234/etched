@@ -54,7 +54,7 @@ public final class CreateCompat {
         if (state.hasProperty(RadioBlock.POWERED) && state.getValue(RadioBlock.POWERED)) {
             return null;
         }
-        if (data == null || !data.contains("Url", Tag.TAG_STRING)) {
+        if (data == null || data.getBoolean("Stopped") || !data.contains("Url", Tag.TAG_STRING)) {
             return null;
         }
         String url = data.getString("Url");

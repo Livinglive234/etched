@@ -51,6 +51,17 @@ public class RadioMenu extends AbstractContainerMenu implements UrlMenu, SoundSe
         });
     }
 
+    /**
+     * Stops or starts the radio for everyone without changing its station.
+     */
+    public void setStopped(boolean stopped) {
+        this.access.execute((level, pos) -> {
+            if (level.getBlockEntity(pos) instanceof RadioBlockEntity be) {
+                be.setStopped(stopped);
+            }
+        });
+    }
+
     @Override
     public void setVolume(float volume) {
         this.access.execute((level, pos) -> {

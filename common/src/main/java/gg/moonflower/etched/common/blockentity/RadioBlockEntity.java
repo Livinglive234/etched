@@ -29,6 +29,7 @@ public class RadioBlockEntity extends BlockEntity implements Clearable, VolumeCo
 
     private String url;
     private float volume = 1.0F;
+    private boolean stopped;
     private boolean loaded;
 
     public RadioBlockEntity(BlockPos pos, BlockState state) {
@@ -53,13 +54,15 @@ public class RadioBlockEntity extends BlockEntity implements Clearable, VolumeCo
         super.loadAdditional(tag, registries);
         String oldUrl = this.url;
         float oldVolume = this.volume;
+        boolean oldStopped = this.stopped;
+        this.stopped = tag.getBoolean("Stopped");
         this.url = tag.contains("Url", Tag.TAG_STRING) ? tag.getString("Url") : null;
         this.volume = tag.contains("Volume", Tag.TAG_FLOAT) ? Mth.clamp(tag.getFloat("Volume"), 0.0F, 1.0F) : 1.0F;
         if (this.level != null && this.level.isClientSide() && !Objects.equals(oldUrl, this.url)) {
             RadioHistory.confirm(this.url);
         }
         if (this.loaded) {
-            if (!Objects.equals(oldUrl, this.url)) {
+            if (!Objects.equals(oldUrl, this.url) || oldStopped != this.stopped) {
                 SoundTracker.playRadio(this.url, this.getBlockState(), this.level, this.getBlockPos());
             } else if (oldVolume != this.volume) {
                 SoundTracker.setBlockVolume(this.getBlockPos(), this.volume);
@@ -75,6 +78,9 @@ public class RadioBlockEntity extends BlockEntity implements Clearable, VolumeCo
         }
         if (this.volume != 1.0F) {
             tag.putFloat("Volume", this.volume);
+        }
+        if (this.stopped) {
+            tag.putBoolean("Stopped", true);
         }
     }
 
@@ -104,6 +110,24 @@ public class RadioBlockEntity extends BlockEntity implements Clearable, VolumeCo
     public void setUrl(String url) {
         if (!Objects.equals(this.url, url)) {
             this.url = url;
+            this.stopped = false; // A new station starts playing
+            this.setChanged();
+            if (this.level != null) {
+                this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
+            }
+        }
+    }
+
+    public boolean isStopped() {
+        return this.stopped;
+    }
+
+    /**
+     * Silences the radio for everyone, or starts it again. The station is kept.
+     */
+    public void setStopped(boolean stopped) {
+        if (this.stopped != stopped) {
+            this.stopped = stopped;
             this.setChanged();
             if (this.level != null) {
                 this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
@@ -130,6 +154,6 @@ public class RadioBlockEntity extends BlockEntity implements Clearable, VolumeCo
 
     public boolean isPlaying() {
         BlockState state = this.getBlockState();
-        return (!state.hasProperty(RadioBlock.POWERED) || !state.getValue(RadioBlock.POWERED)) && !StringUtil.isNullOrEmpty(this.url);
+        return !this.stopped && (!state.hasProperty(RadioBlock.POWERED) || !state.getValue(RadioBlock.POWERED)) && !StringUtil.isNullOrEmpty(this.url);
     }
 }

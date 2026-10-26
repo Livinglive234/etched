@@ -21,7 +21,7 @@ The full list is in [docs/features.md](docs/features.md), with where each featur
   Playlists and albums make a disc with several tracks. Discs can be dyed, copied and merged into **album covers** that show cover art.
 - **Players and blocks.** The **boombox** plays a disc from your inventory or hand. The **jukebox minecart**, **album jukebox** and the
   vanilla jukebox play Etched discs. The **radio** plays an internet radio stream and stops while it is powered by redstone.
-- **Radio screen.** Play, Stop and Close buttons (Stop silences the radio for you only), a list of recent stations that can be given
+- **Radio screen.** Play, Stop and Close buttons (Stop silences the radio for everyone and keeps its station), a list of recent stations that can be given
   names, a volume slider, a search button, and a bounded reconnect when a connection drops.
 - **Now Playing.** The screens of radios, jukeboxes, album jukeboxes and boomboxes show what is playing. A radio shows the title its
   station reports, or Internet Radio when there is none.
@@ -36,7 +36,7 @@ The full list is in [docs/features.md](docs/features.md), with where each featur
 ## Using the radio
 
 Open a radio and paste a stream address, or press the magnifier to search. The address can be a stream, or a `.pls` or `.m3u` playlist.
-**Play** applies the station for everyone and starts it, **Stop** silences this radio for you until you press Play, and **Close** leaves
+**Play** applies the station for everyone and starts it, **Stop** silences the radio for everyone until someone presses Play, and **Close** leaves
 without changing anything. Give a station a name in the name box and it appears under that name in the recent stations list. Names
 and the list are kept on your computer only.
 

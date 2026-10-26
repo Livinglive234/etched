@@ -458,14 +458,14 @@ public class SoundTracker {
     }
 
     private static boolean scheduleReconnect(String url, CommonLevelAccessor level, BlockPos pos) {
-        if (RadioSession.isStopped(pos, url) || RadioSession.reconnectAttempt(pos) >= RadioSession.MAX_RECONNECTS) {
+        if (RadioSession.reconnectAttempt(pos) >= RadioSession.MAX_RECONNECTS) {
             return false;
         }
 
         int attempt = RadioSession.nextAttempt(pos);
         log.warn("Lost connection to {}, reconnecting ({}/{})", url, attempt, RadioSession.MAX_RECONNECTS);
         CompletableFuture.delayedExecutor(2L * attempt, TimeUnit.SECONDS).execute(() -> Minecraft.getInstance().tell(() -> {
-            if (Minecraft.getInstance().level == level && level.getBlockEntity(pos) instanceof RadioBlockEntity radio && url.equals(radio.getUrl()) && !RadioSession.isStopped(pos, url)) {
+            if (Minecraft.getInstance().level == level && level.getBlockEntity(pos) instanceof RadioBlockEntity radio && url.equals(radio.getUrl()) && !radio.isStopped()) {
                 playRadio(url, level.getBlockState(pos), level, pos, true);
             }
         }));
@@ -486,35 +486,14 @@ public class SoundTracker {
     }
 
     /**
-     * Silences a radio for this player only. The station is kept so the player can start it again.
-     *
-     * @param level The level the radio is in
-     * @param pos   The position of the radio
-     */
-    public static void stopRadio(CommonLevelAccessor level, BlockPos pos) {
-        if (level.getBlockEntity(pos) instanceof RadioBlockEntity radio) {
-            RadioSession.stop(pos, radio.getUrl());
-        }
-        Map<BlockPos, SoundInstance> playingRecords = ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).getPlayingJukeboxSongs();
-        SoundInstance soundInstance = playingRecords.remove(pos);
-        if (soundInstance != null) {
-            if (soundInstance instanceof StopListeningSound listening) {
-                listening.stopListening();
-            }
-            Minecraft.getInstance().getSoundManager().stop(soundInstance);
-            setRecordPlayingNearby(level, pos, false);
-        }
-    }
-
-    /**
-     * Starts a radio again after it was stopped or gave up reconnecting.
+     * Starts a radio again after it gave up reconnecting.
      *
      * @param level The level the radio is in
      * @param pos   The position of the radio
      */
     public static void restartRadio(CommonLevelAccessor level, BlockPos pos) {
-        RadioSession.resume(pos);
-        if (level.getBlockEntity(pos) instanceof RadioBlockEntity radio && radio.getUrl() != null) {
+        RadioSession.resetAttempts(pos);
+        if (level.getBlockEntity(pos) instanceof RadioBlockEntity radio && radio.getUrl() != null && !radio.isStopped()) {
             FAILED_URLS.remove(radio.getUrl());
             playRadio(radio.getUrl(), level.getBlockState(pos), level, pos, false);
         }
@@ -534,7 +513,7 @@ public class SoundTracker {
             setRecordPlayingNearby(level, pos, false);
         }
 
-        if (FAILED_URLS.contains(url) || RadioSession.isStopped(pos, url)) {
+        if (FAILED_URLS.contains(url) || level.getBlockEntity(pos) instanceof RadioBlockEntity stoppedRadio && stoppedRadio.isStopped()) {
             return;
         }
         if (!state.hasProperty(RadioBlock.POWERED) || state.getValue(RadioBlock.POWERED)) { // Something must already be playing since it would otherwise be -1 and a change would occur
