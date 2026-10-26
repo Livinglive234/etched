@@ -1,5 +1,6 @@
 package gg.moonflower.etched.common.blockentity;
 
+import gg.moonflower.etched.client.radio.history.RadioHistory;
 import net.minecraft.util.Mth;
 import gg.moonflower.etched.api.sound.SoundTracker;
 import gg.moonflower.etched.common.block.RadioBlock;
@@ -54,6 +55,9 @@ public class RadioBlockEntity extends BlockEntity implements Clearable, VolumeCo
         float oldVolume = this.volume;
         this.url = tag.contains("Url", Tag.TAG_STRING) ? tag.getString("Url") : null;
         this.volume = tag.contains("Volume", Tag.TAG_FLOAT) ? Mth.clamp(tag.getFloat("Volume"), 0.0F, 1.0F) : 1.0F;
+        if (this.level != null && this.level.isClientSide() && !Objects.equals(oldUrl, this.url)) {
+            RadioHistory.confirm(this.url);
+        }
         if (this.loaded) {
             if (!Objects.equals(oldUrl, this.url)) {
                 SoundTracker.playRadio(this.url, this.getBlockState(), this.level, this.getBlockPos());

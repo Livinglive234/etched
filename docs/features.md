@@ -29,6 +29,8 @@ Fabric port and no code or ideas were taken from it.
 | Jukebox minecart | Original | A minecart that plays a disc, started again by an activator rail. |
 | Album jukebox | Original | A jukebox that holds several discs, with a screen to choose the track. |
 | Radio | Original | Plays an internet radio stream from a URL, with a menu to set it, and stops while it is powered by redstone. |
+| Volume slider on radios and album jukeboxes | Fork, code and idea | Lowering the volume also lowers how far away the music can be heard, and applies while it plays. The slider and the distance fade come from the sound settings of BazZziliuS. A single volume that also sets the range is how it works here. |
+| Station history on the radio screen | Fork, idea | The last 20 stations used in each world or server, kept only on the client with hashed world and server names, with a scrollable list and a clear button. Picking one fills the URL box. The idea comes from Re-Etched by oogabooga-dev. |
 | Portal radio | Original | A radio variant with its own look. A radio becomes one with cake, or when a radio item is thrown into the nether. |
 | Vanilla jukebox plays Etched discs | Original | Etched discs and album covers can be put in the vanilla jukebox, which then gives a comparator signal. |
 
@@ -58,6 +60,8 @@ Fabric port and no code or ideas were taken from it.
 | Blocking requests to private networks, this computer and cloud metadata addresses, checked for every redirect | Fork, code and idea | The design and address classifier come from Re-Etched by oogabooga-dev. Redirects are followed by hand with the same check. |
 | Client option `Allow Private Network Stations` | Fork, idea | The option and its name come from Re-Etched by oogabooga-dev. |
 | No username or UUID in audio requests | Fork, idea | Re-Etched by oogabooga-dev removed it from its radio requests. Etched used to send both to every host. |
+| Track info for the etching table looked up by the client | Fork, code | Works when the server cannot reach the music service. The client sends the tracks in an optional packet and clients without it keep the old behavior. From BazZziliuS. |
+| Size limits on playlists, music service pages and replies, and cover images | Fork, idea | Playlists are limited to 1 MiB and 8192 entries, replies to 2 MiB, pages to 8 MiB and covers to 16 MiB. The idea comes from the response limits of Re-Etched by oogabooga-dev. |
 | Short error messages when etching | Created here | The server makes the request, so players only see status text and generic messages. |
 
 ## Platform and compatibility

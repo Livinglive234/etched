@@ -16,14 +16,11 @@ Sources are read-only references:
 | In-game music search for radios and etching tables | BazZziliuS, `8dc0116` | `MusicSearchScreen` and `client/search/*` with Radio Browser, SoundCloud and Audius. Client code only, plus a button on the etching and radio screens. The SoundCloud search needs the scraped client id. |
 | Audius and Internet Archive sources | BazZziliuS, `e76aa86` | Plain Java sources that plug into `SoundSourceManager`. Easy to port. |
 | Yandex Music source | BazZziliuS, `e76aa86` | Needs an OAuth token in the config, otherwise only 30 second previews. Uses an undocumented API, so it can break or conflict with the service's terms. |
-| Etching table looks up track info on the client | BazZziliuS, `db9d7b8` | Moves the metadata lookup off the server. Pairs well with the network policy since the server makes fewer requests. |
 
 ## Radio and playback
 
 | Feature | From | Notes |
 |---|---|---|
-| Per-jukebox and radio volume and range | BazZziliuS, `d10b9b4` | A sound settings menu, a packet, and gain and range scale on `AbstractOnlineSoundInstance`. Fits the platform layer, but it touches that class heavily. |
-| Station history, last 20 per world or server | re-etched `4.1.0` | Client only JSON file with a scrollable list on the radio screen. Stations are only recorded once the server confirms them. |
 | ICY stream titles on screen | re-etched `4.0.0-beta.1` | Reads `StreamTitle` metadata from Shoutcast and Icecast streams. |
 | M3U and PLS stations with fallbacks | re-etched `4.0.0-beta.1` | Nested playlists and ordered fallback stations. We only handle M3U segments for HLS today. |
 | Separate Play, Stop and Close controls with reconnects | re-etched `4.0.0` | A radio session with explicit states and bounded automatic reconnects. A larger rework of `RadioBlockEntity` and `RadioScreen`. |
@@ -45,7 +42,6 @@ Sources are read-only references:
 
 | Item | From | Notes |
 |---|---|---|
-| Size caps on playlist and provider responses | re-etched `4.0.0-beta.1` | Limits response bodies, playlist depth and entries so a hostile server cannot make the game read without end. |
 | Per-server rule for private network stations | Idea only | We have one global client option. A per-server list would be safer. |
 
 ## Other
