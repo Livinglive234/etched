@@ -1,5 +1,6 @@
 package gg.moonflower.etched.api.sound;
 
+import gg.moonflower.etched.common.blockentity.VolumeControlled;
 import gg.moonflower.etched.api.record.PlayableRecord;
 import gg.moonflower.etched.api.record.TrackData;
 import gg.moonflower.etched.api.sound.source.AudioSource;
@@ -171,7 +172,7 @@ public class SoundTracker {
         boolean muffled = aboveState.is(BlockTags.WOOL);
         boolean hidden = !aboveState.isAir();
 
-        return new OnlineRecordSoundInstance(url, pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, muffled ? 2.0F : 4.0F, muffled ? attenuationDistance / 2 : attenuationDistance,
+        AbstractOnlineSoundInstance sound = new OnlineRecordSoundInstance(url, pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, muffled ? 2.0F : 4.0F, muffled ? attenuationDistance / 2 : attenuationDistance,
                 new MusicDownloadListener(title, () -> pos.getX() + 0.5, () -> pos.getY() + 0.5, () -> pos.getZ() + 0.5) {
                     @Override
                     public void onSuccess() {
@@ -192,6 +193,31 @@ public class SoundTracker {
                         FAILED_URLS.add(url);
                     }
                 }, type);
+        if (level.getBlockEntity(pos) instanceof VolumeControlled controlled) {
+            applyVolume(sound, controlled.getVolume());
+        }
+        return sound;
+    }
+
+    private static void applyVolume(AbstractOnlineSoundInstance sound, float volume) {
+        sound.setGain(volume);
+        sound.setRangeScale(volume);
+    }
+
+    /**
+     * Changes the volume of the record playing at a position without restarting it.
+     *
+     * @param pos    The position of the block playing the record
+     * @param volume The new volume from 0 to 1
+     */
+    public static void setBlockVolume(BlockPos pos, float volume) {
+        SoundInstance sound = ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).getPlayingJukeboxSongs().get(pos);
+        while (sound instanceof WrappedSoundInstance wrapped) {
+            sound = wrapped.getParent();
+        }
+        if (sound instanceof AbstractOnlineSoundInstance online) {
+            applyVolume(online, volume);
+        }
     }
 
     /**

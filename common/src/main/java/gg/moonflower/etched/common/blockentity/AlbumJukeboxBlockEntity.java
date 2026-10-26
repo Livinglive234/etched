@@ -1,5 +1,6 @@
 package gg.moonflower.etched.common.blockentity;
 
+import net.minecraft.nbt.Tag;
 import gg.moonflower.etched.api.record.PlayableRecord;
 import gg.moonflower.etched.api.sound.SoundTracker;
 import gg.moonflower.etched.common.block.AlbumJukeboxBlock;
@@ -31,7 +32,7 @@ import java.util.List;
 /**
  * @author Ocelot
  */
-public class AlbumJukeboxBlockEntity extends RandomizableContainerBlockEntity implements WorldlyContainer {
+public class AlbumJukeboxBlockEntity extends RandomizableContainerBlockEntity implements WorldlyContainer, VolumeControlled {
 
     private static final int[] SLOTS = {0, 1, 2, 3, 4, 5, 6, 7, 8};
 
@@ -39,6 +40,7 @@ public class AlbumJukeboxBlockEntity extends RandomizableContainerBlockEntity im
     private int playingIndex;
     private int track;
     private ItemStack playingStack;
+    private float volume = 1.0F;
     private boolean loaded;
 
     public AlbumJukeboxBlockEntity(BlockPos pos, BlockState state) {
@@ -90,12 +92,19 @@ public class AlbumJukeboxBlockEntity extends RandomizableContainerBlockEntity im
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+        NonNullList<ItemStack> oldItems = this.items;
+        float oldVolume = this.volume;
         this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
         if (!this.tryLoadLootTable(tag)) {
             ContainerHelper.loadAllItems(tag, this.items, registries);
         }
+        this.volume = tag.contains("Volume", Tag.TAG_FLOAT) ? Mth.clamp(tag.getFloat("Volume"), 0.0F, 1.0F) : 1.0F;
         if (this.loaded) {
-            SoundTracker.playAlbum(this, this.getBlockState(), this.level, this.getBlockPos(), false);
+            if (oldItems == null || !ItemStack.listMatches(oldItems, this.items)) {
+                SoundTracker.playAlbum(this, this.getBlockState(), this.level, this.getBlockPos(), false);
+            } else if (oldVolume != this.volume) {
+                SoundTracker.setBlockVolume(this.getBlockPos(), this.volume);
+            }
         }
     }
 
@@ -104,6 +113,9 @@ public class AlbumJukeboxBlockEntity extends RandomizableContainerBlockEntity im
         super.saveAdditional(tag, registries);
         if (!this.trySaveLootTable(tag)) {
             ContainerHelper.saveAllItems(tag, this.items, registries);
+        }
+        if (this.volume != 1.0F) {
+            tag.putFloat("Volume", this.volume);
         }
     }
 
@@ -195,6 +207,21 @@ public class AlbumJukeboxBlockEntity extends RandomizableContainerBlockEntity im
     @Override
     public int getMaxStackSize() {
         return 1;
+    }
+
+    @Override
+    public float getVolume() {
+        return this.volume;
+    }
+
+    @Override
+    public void setVolume(float volume) {
+        volume = Mth.clamp(volume, 0.0F, 1.0F);
+        if (this.volume != volume) {
+            this.volume = volume;
+            this.setChanged();
+            this.updatePlaying();
+        }
     }
 
     public int getPlayingIndex() {

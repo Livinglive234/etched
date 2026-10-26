@@ -1,5 +1,7 @@
 package gg.moonflower.etched.client.screen;
 
+import gg.moonflower.etched.common.blockentity.VolumeControlled;
+import gg.moonflower.etched.common.network.play.ServerboundSoundSettingsPacket;
 import gg.moonflower.etched.platform.EtchedPlatform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import gg.moonflower.etched.api.record.PlayableRecord;
@@ -79,7 +81,18 @@ public class AlbumJukeboxScreen extends AbstractContainerScreen<AlbumJukeboxMenu
         this.addRenderableWidget(Button.builder(NEXT, b -> this.update(true))
                 .bounds(this.leftPos + 115 + (58 - font.width(NEXT)) / 2 - buttonPadding, this.topPos + 33, font.width(NEXT) + 2 * buttonPadding, 20)
                 .build());
+        float volume = this.minecraft.level != null && this.minecraft.level.getBlockEntity(this.menu.getPos()) instanceof VolumeControlled controlled ? controlled.getVolume() : 1.0F;
+        this.addRenderableWidget(new SettingSlider(this.leftPos + 7, this.topPos + 17, 52, 14, "screen." + Etched.MOD_ID + ".volume.short", 0, 100, Math.round(volume * 100.0F), value -> EtchedPlatform.get().sendToServer(new ServerboundSoundSettingsPacket(value / 100.0F))));
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        // Container screens only drag items, so the slider has to be passed drags itself
+        if (button == 0 && this.isDragging() && this.getFocused() instanceof SettingSlider slider) {
+            return slider.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        }
+        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
 
     @Override

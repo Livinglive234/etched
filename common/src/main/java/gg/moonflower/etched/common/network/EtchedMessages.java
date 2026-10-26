@@ -8,9 +8,9 @@ import gg.moonflower.etched.platform.PacketRegistry;
 public class EtchedMessages {
 
     /**
-     * The network protocol version of the Etched payloads.
+     * The network protocol version of the Etched payloads. Raised when the radio menu started to send the volume.
      */
-    public static final String VERSION = "4";
+    public static final String VERSION = "5";
 
     public static void init(PacketRegistry registry) {
         // Client
@@ -22,6 +22,8 @@ public class EtchedMessages {
         registry.playToServer(ServerboundEditMusicLabelPacket.TYPE, ServerboundEditMusicLabelPacket.CODEC, EtchedServerPlayPacketHandler::handleEditMusicLabel);
         // Optional so clients without it can still join. The server resolves the tracks itself for them
         registry.playToServerOptional(ServerboundEtchTrackDataPacket.TYPE, ServerboundEtchTrackDataPacket.CODEC, EtchedServerPlayPacketHandler::handleEtchTrackData);
+
+        registry.playToServer(ServerboundSoundSettingsPacket.TYPE, ServerboundSoundSettingsPacket.CODEC, EtchedServerPlayPacketHandler::handleSoundSettings);
 
         // Bidirectional
         registry.playBidirectional(SetAlbumJukeboxTrackPacket.TYPE, SetAlbumJukeboxTrackPacket.CODEC, () -> EtchedClientPlayPacketHandler::handleSetAlbumJukeboxTrack, EtchedServerPlayPacketHandler::handleSetAlbumJukeboxTrack);

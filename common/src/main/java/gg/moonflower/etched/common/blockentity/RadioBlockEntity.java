@@ -1,5 +1,6 @@
 package gg.moonflower.etched.common.blockentity;
 
+import net.minecraft.util.Mth;
 import gg.moonflower.etched.api.sound.SoundTracker;
 import gg.moonflower.etched.common.block.RadioBlock;
 import gg.moonflower.etched.core.registry.EtchedBlocks;
@@ -23,9 +24,10 @@ import java.util.Objects;
 /**
  * @author Ocelot
  */
-public class RadioBlockEntity extends BlockEntity implements Clearable {
+public class RadioBlockEntity extends BlockEntity implements Clearable, VolumeControlled {
 
     private String url;
+    private float volume = 1.0F;
     private boolean loaded;
 
     public RadioBlockEntity(BlockPos pos, BlockState state) {
@@ -48,9 +50,16 @@ public class RadioBlockEntity extends BlockEntity implements Clearable {
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+        String oldUrl = this.url;
+        float oldVolume = this.volume;
         this.url = tag.contains("Url", Tag.TAG_STRING) ? tag.getString("Url") : null;
+        this.volume = tag.contains("Volume", Tag.TAG_FLOAT) ? Mth.clamp(tag.getFloat("Volume"), 0.0F, 1.0F) : 1.0F;
         if (this.loaded) {
-            SoundTracker.playRadio(this.url, this.getBlockState(), this.level, this.getBlockPos());
+            if (!Objects.equals(oldUrl, this.url)) {
+                SoundTracker.playRadio(this.url, this.getBlockState(), this.level, this.getBlockPos());
+            } else if (oldVolume != this.volume) {
+                SoundTracker.setBlockVolume(this.getBlockPos(), this.volume);
+            }
         }
     }
 
@@ -59,6 +68,9 @@ public class RadioBlockEntity extends BlockEntity implements Clearable {
         super.saveAdditional(tag, registries);
         if (this.url != null) {
             tag.putString("Url", this.url);
+        }
+        if (this.volume != 1.0F) {
+            tag.putFloat("Volume", this.volume);
         }
     }
 
@@ -88,6 +100,23 @@ public class RadioBlockEntity extends BlockEntity implements Clearable {
     public void setUrl(String url) {
         if (!Objects.equals(this.url, url)) {
             this.url = url;
+            this.setChanged();
+            if (this.level != null) {
+                this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
+            }
+        }
+    }
+
+    @Override
+    public float getVolume() {
+        return this.volume;
+    }
+
+    @Override
+    public void setVolume(float volume) {
+        volume = Mth.clamp(volume, 0.0F, 1.0F);
+        if (this.volume != volume) {
+            this.volume = volume;
             this.setChanged();
             if (this.level != null) {
                 this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);

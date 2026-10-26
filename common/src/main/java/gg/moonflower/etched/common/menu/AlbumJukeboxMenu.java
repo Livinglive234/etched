@@ -1,5 +1,6 @@
 package gg.moonflower.etched.common.menu;
 
+import gg.moonflower.etched.common.blockentity.VolumeControlled;
 import gg.moonflower.etched.api.record.PlayableRecord;
 import gg.moonflower.etched.common.blockentity.AlbumJukeboxBlockEntity;
 import gg.moonflower.etched.common.network.play.SetAlbumJukeboxTrackPacket;
@@ -18,10 +19,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 /**
  * @author Ocelot
  */
-public class AlbumJukeboxMenu extends AbstractContainerMenu {
+public class AlbumJukeboxMenu extends AbstractContainerMenu implements SoundSettingsMenu {
 
     private final BlockPos pos;
     private final Container container;
+    private final Player player;
 
     public AlbumJukeboxMenu(int containerId, Inventory inventory, BlockPos pos) {
         this(containerId, inventory, new SimpleContainer(9), pos);
@@ -31,6 +33,7 @@ public class AlbumJukeboxMenu extends AbstractContainerMenu {
         super(EtchedMenus.ALBUM_JUKEBOX_MENU.get(), containerId);
         checkContainerSize(container, 9);
         this.container = container;
+        this.player = inventory.player;
         container.startOpen(inventory.player);
         this.pos = pos;
 
@@ -62,6 +65,13 @@ public class AlbumJukeboxMenu extends AbstractContainerMenu {
             return jukebox.setPlayingIndex(pkt.playingIndex(), pkt.track());
         }
         return false;
+    }
+
+    @Override
+    public void setVolume(float volume) {
+        if (this.player.level().getBlockEntity(this.pos) instanceof VolumeControlled jukebox) {
+            jukebox.setVolume(volume);
+        }
     }
 
     @Override

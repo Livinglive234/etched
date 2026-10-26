@@ -1,5 +1,7 @@
 package gg.moonflower.etched.common.network.play.handler;
 
+import gg.moonflower.etched.common.network.play.ServerboundSoundSettingsPacket;
+import gg.moonflower.etched.common.menu.SoundSettingsMenu;
 import gg.moonflower.etched.platform.EtchedPlatform;
 import gg.moonflower.etched.common.component.MusicLabelComponent;
 import gg.moonflower.etched.common.menu.AlbumJukeboxMenu;
@@ -27,6 +29,12 @@ public class EtchedServerPlayPacketHandler {
         
         if (player.containerMenu instanceof UrlMenu menu) {
             menu.setUrl(pkt.url());
+        }
+    }
+
+    public static void handleSoundSettings(ServerboundSoundSettingsPacket pkt, Player player) {
+        if (player.containerMenu instanceof SoundSettingsMenu menu && Float.isFinite(pkt.volume())) {
+            menu.setVolume(Math.max(0.0F, Math.min(1.0F, pkt.volume())));
         }
     }
 

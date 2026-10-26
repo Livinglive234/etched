@@ -11,14 +11,16 @@ import net.minecraft.world.item.ItemStack;
 /**
  * @author Ocelot
  */
-public class RadioMenu extends AbstractContainerMenu implements UrlMenu {
+public class RadioMenu extends AbstractContainerMenu implements UrlMenu, SoundSettingsMenu {
 
     private final ContainerLevelAccess access;
     private String initialUrl;
+    private float initialVolume = 1.0F;
 
-    public RadioMenu(int id, String url) {
+    public RadioMenu(int id, String url, float volume) {
         this(id, ContainerLevelAccess.NULL);
         this.initialUrl = url;
+        this.initialVolume = volume;
     }
 
     public RadioMenu(int id, ContainerLevelAccess access) {
@@ -43,6 +45,22 @@ public class RadioMenu extends AbstractContainerMenu implements UrlMenu {
                 be.setUrl(url);
             }
         });
+    }
+
+    @Override
+    public void setVolume(float volume) {
+        this.access.execute((level, pos) -> {
+            if (level.getBlockEntity(pos) instanceof RadioBlockEntity be) {
+                be.setVolume(volume);
+            }
+        });
+    }
+
+    /**
+     * @return The volume of the radio before opening the menu
+     */
+    public float getInitialVolume() {
+        return this.initialVolume;
     }
 
     /**

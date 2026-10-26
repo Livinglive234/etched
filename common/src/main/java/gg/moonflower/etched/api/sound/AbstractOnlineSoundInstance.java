@@ -1,5 +1,8 @@
 package gg.moonflower.etched.api.sound;
 
+import net.minecraft.util.Mth;
+import net.minecraft.client.resources.sounds.TickableSoundInstance;
+import net.minecraft.client.Camera;
 import gg.moonflower.etched.api.record.TrackData;
 import gg.moonflower.etched.api.sound.source.AudioSource;
 import gg.moonflower.etched.api.sound.stream.AsyncAudioStream;
@@ -53,6 +56,8 @@ public class AbstractOnlineSoundInstance extends AbstractSoundInstance implement
     private final DownloadProgressListener progressListener;
     private final AudioSource.AudioFileType type;
     private final boolean stereo;
+    private float gain;
+    private float rangeScale;
 
     public AbstractOnlineSoundInstance(String url, @Nullable String subtitle, int attenuationDistance, SoundSource source, DownloadProgressListener progressListener, AudioSource.AudioFileType type, boolean stereo) {
         super(Etched.etchedPath(DigestUtils.sha1Hex(url)), source, SoundInstance.createUnseededRandom());
@@ -62,6 +67,8 @@ public class AbstractOnlineSoundInstance extends AbstractSoundInstance implement
         this.progressListener = progressListener;
         this.type = type;
         this.stereo = Etched.CLIENT_CONFIG.forceStereo.get() || stereo;
+        this.gain = 1.0F;
+        this.rangeScale = 1.0F;
     }
 
     private static AudioStream getStream(AudioStream stream, Sound sound) {
@@ -134,9 +141,90 @@ public class AbstractOnlineSoundInstance extends AbstractSoundInstance implement
     @Override
     public WeighedSoundEvents resolve(SoundManager soundManager) {
         WeighedSoundEvents weighedSoundEvents = new WeighedSoundEvents(this.getLocation(), this.subtitle);
-        weighedSoundEvents.addSound(new OnlineSound(this.getLocation(), this.url, this.attenuationDistance, this.progressListener, this.type, this.stereo));
+        // The sound engine scales the range by the volume, so divide it back out to keep the range
+        int attenuationDistance = Math.max(1, Math.round(this.getRange() / Math.max(this.volume, 1.0F)));
+        weighedSoundEvents.addSound(new OnlineSound(this.getLocation(), this.url, attenuationDistance, this.progressListener, this.type, this.stereo));
         this.sound = weighedSoundEvents.getSound(this.random);
         return weighedSoundEvents;
+    }
+
+    /**
+     * Ticking sounds fade with distance by themselves, since the sound engine only sets the range when a sound starts.
+     * That lets the range change while playing.
+     * <p>
+     * Ported from BazZziliuS/etched, https://github.com/BazZziliuS/etched
+     */
+    private boolean isFadedManually() {
+        return this instanceof TickableSoundInstance && !this.relative && this.attenuation == Attenuation.LINEAR;
+    }
+
+    @Override
+    public Attenuation getAttenuation() {
+        return this.isFadedManually() ? Attenuation.NONE : this.attenuation;
+    }
+
+    @Override
+    public float getVolume() {
+        // Minecraft clamps the volume times the category volume to 1, which would hide the gain of loud records.
+        // Capping the volume where that clamp starts applies the gain after it instead
+        float volume = this.getCategoryVolume() > 0.0F ? Math.min(this.volume, 1.0F / this.getCategoryVolume()) : this.volume;
+        return volume * this.gain * this.getDistanceFade();
+    }
+
+    private float getCategoryVolume() {
+        return this.source == SoundSource.MASTER ? 1.0F : Minecraft.getInstance().options.getSoundSourceVolume(this.source);
+    }
+
+    /**
+     * @return The same linear fade the sound engine uses, measured from the camera
+     */
+    private float getDistanceFade() {
+        Minecraft client = Minecraft.getInstance();
+        Camera camera = client.gameRenderer.getMainCamera();
+        if (!this.isFadedManually() || client.level == null || !camera.isInitialized()) {
+            return 1.0F;
+        }
+
+        double distance = Math.sqrt(camera.getPosition().distanceToSqr(this.x, this.y, this.z));
+        return (float) Math.max(0.0, 1.0 - distance / this.getRange());
+    }
+
+    @Override
+    public boolean canStartSilent() {
+        // Quiet or far away records still have to start so they can be heard later
+        return this.isFadedManually() ? this.getCategoryVolume() > 0.0F : this.gain <= 0.0F;
+    }
+
+    /**
+     * Sets how loud this sound plays without changing how far away it can be heard.
+     *
+     * @param gain The volume multiplier from 0 to 1
+     */
+    public void setGain(float gain) {
+        this.gain = Mth.clamp(gain, 0.0F, 1.0F);
+    }
+
+    /**
+     * @return The volume multiplier from 0 to 1
+     */
+    public float getGain() {
+        return this.gain;
+    }
+
+    /**
+     * Scales how far away this sound can be heard. Only ticking sounds can change their range while playing.
+     *
+     * @param rangeScale The multiplier for the default range
+     */
+    public void setRangeScale(float rangeScale) {
+        this.rangeScale = Math.max(rangeScale, 0.0F);
+    }
+
+    /**
+     * @return How far away this sound can be heard in blocks
+     */
+    public float getRange() {
+        return Math.max(this.attenuationDistance * Math.max(this.volume, 1.0F) * this.rangeScale, 1.0F);
     }
 
     public AbstractOnlineSoundInstance setLoop(boolean loop) {
