@@ -5,6 +5,7 @@
   "minVersion": "0.8",
   "client": [
     "client.JukeboxSongPlayerMixin",
+    "client.compat.AmendmentsEtchedCompatMixin",
     "client.entity.ClientLivingEntityMixin",
     "client.entity.ParrotMixin",
     "client.gui.ForgeIngameGuiMixin",
