@@ -35,6 +35,7 @@ import net.minecraft.world.level.CommonLevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import gg.moonflower.etched.core.compat.StorageSounds;
 import gg.moonflower.etched.platform.EtchedPlatform;
 import org.jetbrains.annotations.Nullable;
@@ -45,6 +46,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 /**
  * Tracks entity sounds and all etched playing sounds for the client side.
@@ -153,6 +155,38 @@ public class SoundTracker {
     }
 
     /**
+     * Creates an online sound that follows a point which can move, such as a block on a Create contraption.
+     *
+     * @param url                 The url to play
+     * @param title               The title shown while loading
+     * @param position            Where the sound is, or <code>null</code> once it has to stop
+     * @param attenuationDistance The attenuation distance of the sound
+     * @param type                The type of audio to accept
+     * @return A new sound instance
+     */
+    public static @Nullable AbstractOnlineSoundInstance getMovingRecord(String url, Component title, Supplier<Vec3> position, int attenuationDistance, AudioSource.AudioFileType type) {
+        if (!TrackData.isValidURL(url) || FAILED_URLS.contains(url)) {
+            return null;
+        }
+
+        DoubleSupplier x = () -> Optional.ofNullable(position.get()).map(Vec3::x).orElse(0.0);
+        DoubleSupplier y = () -> Optional.ofNullable(position.get()).map(Vec3::y).orElse(0.0);
+        DoubleSupplier z = () -> Optional.ofNullable(position.get()).map(Vec3::z).orElse(0.0);
+        return new OnlineRecordSoundInstance(url, position, 4.0F, attenuationDistance, new MusicDownloadListener(title, x, y, z) {
+            @Override
+            public void onSuccess() {
+                this.clearComponent();
+            }
+
+            @Override
+            public void onFail() {
+                Minecraft.getInstance().gui.setOverlayMessage(Component.translatable("record." + Etched.MOD_ID + ".downloadFail", title), true);
+                FAILED_URLS.add(url);
+            }
+        }, type);
+    }
+
+    /**
      * Creates an online sound for the specified entity with the default attenuation distance.
      *
      * @param url    The url to play
@@ -220,6 +254,21 @@ public class SoundTracker {
             applyVolume(sound, controlled.getVolume());
         }
         return sound;
+    }
+
+    /**
+     * Sets the volume of a sound, which also scales how far away it can be heard.
+     *
+     * @param sound  The sound, or anything wrapping a sound from this mod
+     * @param volume The volume from 0 to 1
+     */
+    public static void applyVolume(@Nullable SoundInstance sound, float volume) {
+        while (sound instanceof WrappedSoundInstance wrapped) {
+            sound = wrapped.getParent();
+        }
+        if (sound instanceof AbstractOnlineSoundInstance online) {
+            applyVolume(online, volume);
+        }
     }
 
     private static void applyVolume(AbstractOnlineSoundInstance sound, float volume) {

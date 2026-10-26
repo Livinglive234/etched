@@ -31,6 +31,9 @@ Fabric port and no code or ideas were taken from it.
 | Radio | Original | Plays an internet radio stream from a URL, with a menu to set it, and stops while it is powered by redstone. |
 | Volume slider on radios, album jukeboxes and jukeboxes | Fork, code and idea | Lowering the volume also lowers how far away the music can be heard, and applies while it plays. Sneak and use a vanilla jukebox with empty hands to open its volume menu. The slider and the distance fade come from the sound settings of BazZziliuS. A single volume that also sets the range, and the vanilla jukebox support, are done here. |
 | Station history on the radio screen | Fork, idea | The last 20 stations used in each world or server, kept only on the client with hashed world and server names, with a scrollable list and a clear button. Picking one fills the URL box. The idea comes from Re-Etched by oogabooga-dev. |
+| Play, Stop and Close on the radio | Fork, idea | Play applies the station and starts it, Stop silences the radio for you only and keeps the station, and Close leaves the screen without changing anything. A failed connection is retried up to three times before giving up. The explicit states and bounded reconnects come from Re-Etched by oogabooga-dev. Stop is local to your game, it does not stop the radio for other players. |
+| Now Playing header on the screens of radios, album jukeboxes, jukeboxes and boomboxes | Created here | Shows the current track across the top, and on a radio the title the station reports, or Internet Radio when it reports none. |
+| Music search for radios and etching tables | Fork, code | A search button opens a screen that looks up stations on Radio Browser and tracks on SoundCloud. Ported from BazZziliuS without the Audius source. |
 | Portal radio | Original | A radio variant with its own look. A radio becomes one with cake, or when a radio item is thrown into the nether. |
 | Vanilla jukebox plays Etched discs | Original | Etched discs and album covers can be put in the vanilla jukebox, which then gives a comparator signal. |
 
@@ -42,6 +45,8 @@ Fabric port and no code or ideas were taken from it.
 | Minecraft sound events as tracks | Original | A disc can hold a sound already in the game. |
 | SoundCloud and Bandcamp links | Original | Tracks, sets and albums, with cover art. |
 | M3U and HLS streams | Original | Live streams and segmented tracks. |
+| Station playlists in PLS and M3U, with fallbacks | Fork, idea | A playlist address can be used as a station. Nested and relative entries are followed, and the first entry that answers is played. The approach comes from Re-Etched by oogabooga-dev. |
+| Stream titles | Fork, idea | Shoutcast and Icecast metadata is removed from the audio and the current title is shown on the radio screen. The approach comes from Re-Etched by oogabooga-dev. |
 | Disk cache for audio and cover art | Original | Downloaded audio and cover images are kept on disk. |
 | Music info on tooltips and the Now Playing text | Original | Includes the source of the track and the album marker. |
 | Sophisticated Core jukebox upgrade support | Original | NeoForge only, since Sophisticated Core has no Fabric version. |
@@ -73,6 +78,7 @@ Fabric port and no code or ideas were taken from it.
 | One codebase for both loaders | Created here | `common`, `neoforge` and `fabric` modules with a small platform layer. |
 | Data generation on both loaders | Created here | Tags, recipes and loot are defined once. NeoForge generates the item models with its own provider and Fabric with a custom provider that matches it. |
 | Amendments jukebox look | Created here | Amendments draws the disc on top of a jukebox with its own renderer. Etched discs now spin there, the gold label is drawn, and the jukebox minecart draws its disc the same way. |
+| Create contraption support | Fork, idea | Fabric only. Radios, album jukeboxes and jukeboxes keep playing while mounted on a Create contraption, such as a train, with their station, discs and volume as they were when assembled. Changing them while mounted is not supported. The idea and the syncing approach come from BazZziliuS, who wrote it for NeoForge. Built against Create Fabric 6.0.10. |
 | Build and download of both jars in GitHub Actions | Created here | Every push builds the NeoForge and Fabric jars and keeps them as artifacts. |
 
 ## World and villagers

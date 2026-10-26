@@ -1,6 +1,7 @@
 package gg.moonflower.etched.core;
 
 import gg.moonflower.etched.common.network.EtchedMessages;
+import gg.moonflower.etched.core.compat.create.CreateCompat;
 import gg.moonflower.etched.core.registry.EtchedVillagers;
 import gg.moonflower.etched.platform.FabricPacketRegistry;
 import net.fabricmc.api.EnvType;
@@ -26,6 +27,9 @@ public class EtchedFabric implements ModInitializer {
         EtchedFabricConfig.register();
         EtchedMessages.init(new FabricPacketRegistry(FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT));
         Etched.commonSetup();
+        if (FabricLoader.getInstance().isModLoaded("create")) {
+            CreateCompat.load();
+        }
 
         Map<Integer, List<VillagerTrades.ItemListing>> bardTrades = new HashMap<>();
         EtchedVillagers.addBardTrades(tier -> bardTrades.computeIfAbsent(tier, key -> new ArrayList<>()));

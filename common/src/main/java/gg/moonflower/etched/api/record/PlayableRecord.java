@@ -20,6 +20,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.JukeboxSong;
 import net.minecraft.world.level.CommonLevelAccessor;
@@ -28,6 +29,7 @@ import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -223,6 +225,20 @@ public final class PlayableRecord {
      */
     public static Optional<SoundInstance> createBlockSound(ItemStack stack, CommonLevelAccessor level, BlockPos pos, int track, int attenuationDistance) {
         return PlayableRecordClient.createBlockSound(stack, level, pos, track, attenuationDistance);
+    }
+
+    /**
+     * Creates the sound for a record that moves, such as one on a Create contraption.
+     *
+     * @param stack               The stack to play
+     * @param registries          The registries to look songs up in
+     * @param position            Where the sound is, or <code>null</code> once it has to stop
+     * @param track               The track to play on the disc
+     * @param attenuationDistance The attenuation distance of the sound
+     * @return The sound to play or nothing to error
+     */
+    public static Optional<SoundInstance> createMovingSound(ItemStack stack, HolderLookup.Provider registries, Supplier<Vec3> position, int track, int attenuationDistance) {
+        return PlayableRecordClient.createMovingSound(stack, registries, position, track, attenuationDistance);
     }
 
     /**
