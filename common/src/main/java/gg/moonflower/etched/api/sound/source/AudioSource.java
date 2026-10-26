@@ -2,7 +2,9 @@ package gg.moonflower.etched.api.sound.source;
 
 import gg.moonflower.etched.api.util.NetworkPolicy;
 import gg.moonflower.etched.api.sound.download.SoundDownloadSource;
+import gg.moonflower.etched.api.sound.StreamTitles;
 import gg.moonflower.etched.api.util.AsyncInputStream;
+import gg.moonflower.etched.api.util.IcyInputStream;
 import gg.moonflower.etched.api.util.DownloadProgressListener;
 import gg.moonflower.etched.api.util.ProgressTrackingInputStream;
 import gg.moonflower.etched.client.sound.SoundCache;
@@ -151,11 +153,25 @@ public interface AudioSource {
                         // Live streams must never be replayed from the cache
                         Map<String, String> streamHeaders = new HashMap<>(getDownloadHeaders());
                         streamHeaders.put("Cache-Control", "no-cache, no-store, must-revalidate");
+                        streamHeaders.put("Icy-MetaData", "1");
                         HttpURLConnection streamConnection = NetworkPolicy.connect(url, null, "GET", streamHeaders);
                         if (streamConnection.getResponseCode() != 200) {
                             throw new IOException("Failed to connect to " + url + ": " + streamConnection.getResponseCode() + ". " + streamConnection.getResponseMessage());
                         }
-                        return streamConnection.getInputStream();
+                        InputStream stream = streamConnection.getInputStream();
+                        String interval = streamConnection.getHeaderField("icy-metaint");
+                        if (interval != null) {
+                            try {
+                                int bytes = Integer.parseInt(interval.strip());
+                                if (bytes > 0) {
+                                    StreamTitles.clear(key);
+                                    return new IcyInputStream(stream, bytes, title -> StreamTitles.set(key, title));
+                                }
+                            } catch (NumberFormatException e) {
+                                LOGGER.warn("Invalid icy-metaint: {}", interval);
+                            }
+                        }
+                        return stream;
                     }, 8192, 8, Util.nonCriticalIoPool());
                 }
             }

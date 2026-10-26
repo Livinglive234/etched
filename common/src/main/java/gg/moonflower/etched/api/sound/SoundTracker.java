@@ -5,6 +5,8 @@ import gg.moonflower.etched.api.record.PlayableRecord;
 import gg.moonflower.etched.api.record.TrackData;
 import gg.moonflower.etched.api.sound.source.AudioSource;
 import gg.moonflower.etched.api.util.DownloadProgressListener;
+import gg.moonflower.etched.client.radio.RadioSession;
+import gg.moonflower.etched.common.blockentity.RadioBlockEntity;
 import gg.moonflower.etched.common.block.AlbumJukeboxBlock;
 import gg.moonflower.etched.common.block.RadioBlock;
 import gg.moonflower.etched.common.blockentity.AlbumJukeboxBlockEntity;
@@ -39,6 +41,9 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -64,6 +69,14 @@ public class SoundTracker {
                 livingEntity.setRecordPlayingNearby(pos, playing);
             }
         }
+    }
+
+    /**
+     * @param pos The position of a jukebox, radio or album jukebox
+     * @return Whether a sound from this mod is playing at that position on the client
+     */
+    public static boolean isPlayingAt(BlockPos pos) {
+        return ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).getPlayingJukeboxSongs().containsKey(pos);
     }
 
     /**
@@ -164,6 +177,10 @@ public class SoundTracker {
      * @return A new sound instance
      */
     public static @Nullable AbstractOnlineSoundInstance getEtchedRecord(String url, Component title, CommonLevelAccessor level, BlockPos pos, int attenuationDistance, AudioSource.AudioFileType type) {
+        return getEtchedRecord(url, title, level, pos, attenuationDistance, type, null);
+    }
+
+    private static @Nullable AbstractOnlineSoundInstance getEtchedRecord(String url, Component title, CommonLevelAccessor level, BlockPos pos, int attenuationDistance, AudioSource.AudioFileType type, @Nullable BooleanSupplier retry) {
         if (!TrackData.isValidURL(url) || FAILED_URLS.contains(url)) {
             return null;
         }
@@ -176,6 +193,9 @@ public class SoundTracker {
                 new MusicDownloadListener(title, () -> pos.getX() + 0.5, () -> pos.getY() + 0.5, () -> pos.getZ() + 0.5) {
                     @Override
                     public void onSuccess() {
+                        if (retry != null) {
+                            RadioSession.resetAttempts(pos);
+                        }
                         Map<BlockPos, SoundInstance> playingRecords = ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).getPlayingJukeboxSongs();
                         if (!playingRecords.containsKey(pos)) {
                             this.clearComponent();
@@ -189,6 +209,9 @@ public class SoundTracker {
 
                     @Override
                     public void onFail() {
+                        if (retry != null && retry.getAsBoolean()) {
+                            return;
+                        }
                         Minecraft.getInstance().gui.setOverlayMessage(Component.translatable("record." + Etched.MOD_ID + ".downloadFail", title), true);
                         FAILED_URLS.add(url);
                     }
@@ -385,6 +408,21 @@ public class SoundTracker {
         }
     }
 
+    private static boolean scheduleReconnect(String url, CommonLevelAccessor level, BlockPos pos) {
+        if (RadioSession.isStopped(pos, url) || RadioSession.reconnectAttempt(pos) >= RadioSession.MAX_RECONNECTS) {
+            return false;
+        }
+
+        int attempt = RadioSession.nextAttempt(pos);
+        log.warn("Lost connection to {}, reconnecting ({}/{})", url, attempt, RadioSession.MAX_RECONNECTS);
+        CompletableFuture.delayedExecutor(2L * attempt, TimeUnit.SECONDS).execute(() -> Minecraft.getInstance().tell(() -> {
+            if (Minecraft.getInstance().level == level && level.getBlockEntity(pos) instanceof RadioBlockEntity radio && url.equals(radio.getUrl()) && !RadioSession.isStopped(pos, url)) {
+                playRadio(url, level.getBlockState(pos), level, pos, true);
+            }
+        }));
+        return true;
+    }
+
     /**
      * Plays the records on an album jukebox in order.
      *
@@ -394,6 +432,46 @@ public class SoundTracker {
      * @param pos   The position of the jukebox
      */
     public static void playRadio(@Nullable String url, BlockState state, CommonLevelAccessor level, BlockPos pos) {
+        RadioSession.resetAttempts(pos);
+        playRadio(url, state, level, pos, false);
+    }
+
+    /**
+     * Silences a radio for this player only. The station is kept so the player can start it again.
+     *
+     * @param level The level the radio is in
+     * @param pos   The position of the radio
+     */
+    public static void stopRadio(CommonLevelAccessor level, BlockPos pos) {
+        if (level.getBlockEntity(pos) instanceof RadioBlockEntity radio) {
+            RadioSession.stop(pos, radio.getUrl());
+        }
+        Map<BlockPos, SoundInstance> playingRecords = ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).getPlayingJukeboxSongs();
+        SoundInstance soundInstance = playingRecords.remove(pos);
+        if (soundInstance != null) {
+            if (soundInstance instanceof StopListeningSound listening) {
+                listening.stopListening();
+            }
+            Minecraft.getInstance().getSoundManager().stop(soundInstance);
+            setRecordPlayingNearby(level, pos, false);
+        }
+    }
+
+    /**
+     * Starts a radio again after it was stopped or gave up reconnecting.
+     *
+     * @param level The level the radio is in
+     * @param pos   The position of the radio
+     */
+    public static void restartRadio(CommonLevelAccessor level, BlockPos pos) {
+        RadioSession.resume(pos);
+        if (level.getBlockEntity(pos) instanceof RadioBlockEntity radio && radio.getUrl() != null) {
+            FAILED_URLS.remove(radio.getUrl());
+            playRadio(radio.getUrl(), level.getBlockState(pos), level, pos, false);
+        }
+    }
+
+    private static void playRadio(@Nullable String url, BlockState state, CommonLevelAccessor level, BlockPos pos, boolean reconnect) {
         SoundManager soundManager = Minecraft.getInstance().getSoundManager();
         Map<BlockPos, SoundInstance> playingRecords = ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).getPlayingJukeboxSongs();
 
@@ -407,7 +485,7 @@ public class SoundTracker {
             setRecordPlayingNearby(level, pos, false);
         }
 
-        if (FAILED_URLS.contains(url)) {
+        if (FAILED_URLS.contains(url) || RadioSession.isStopped(pos, url)) {
             return;
         }
         if (!state.hasProperty(RadioBlock.POWERED) || state.getValue(RadioBlock.POWERED)) { // Something must already be playing since it would otherwise be -1 and a change would occur
@@ -415,7 +493,7 @@ public class SoundTracker {
         }
 
         if (TrackData.isValidURL(url)) {
-            AbstractOnlineSoundInstance record = getEtchedRecord(url, RADIO, level, pos, 8, AudioSource.AudioFileType.BOTH);
+            AbstractOnlineSoundInstance record = getEtchedRecord(url, RADIO, level, pos, 8, AudioSource.AudioFileType.BOTH, () -> scheduleReconnect(url, level, pos));
             record.setLoop(true); // If the sound is a file, then just continue looping that specific track
             playRecord(pos, record); // Get the new block state
         }

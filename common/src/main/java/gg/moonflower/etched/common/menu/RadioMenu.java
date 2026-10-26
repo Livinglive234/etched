@@ -3,6 +3,7 @@ package gg.moonflower.etched.common.menu;
 import gg.moonflower.etched.common.blockentity.RadioBlockEntity;
 import gg.moonflower.etched.core.registry.EtchedBlocks;
 import gg.moonflower.etched.core.registry.EtchedMenus;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -17,8 +18,11 @@ public class RadioMenu extends AbstractContainerMenu implements UrlMenu, SoundSe
     private String initialUrl;
     private float initialVolume = 1.0F;
 
-    public RadioMenu(int id, String url, float volume) {
+    private BlockPos pos = BlockPos.ZERO;
+
+    public RadioMenu(int id, BlockPos pos, String url, float volume) {
         this(id, ContainerLevelAccess.NULL);
+        this.pos = pos;
         this.initialUrl = url;
         this.initialVolume = volume;
     }
@@ -66,6 +70,10 @@ public class RadioMenu extends AbstractContainerMenu implements UrlMenu, SoundSe
     /**
      * @return The original URL inside the radio before opening the menu
      */
+    public BlockPos getPos() {
+        return this.pos;
+    }
+
     public String getInitialUrl() {
         return this.initialUrl;
     }

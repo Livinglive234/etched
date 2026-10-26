@@ -79,6 +79,7 @@ public class RadioBlock extends BaseEntityBlock {
                 String url = radio != null ? radio.getUrl() : null;
                 float volume = radio != null ? radio.getVolume() : 1.0F;
                 EtchedPlatform.get().openMenu((ServerPlayer) player, menuProvider, buf -> {
+                    buf.writeBlockPos(pos);
                     buf.writeUtf(url != null ? url : "");
                     buf.writeFloat(volume);
                 });

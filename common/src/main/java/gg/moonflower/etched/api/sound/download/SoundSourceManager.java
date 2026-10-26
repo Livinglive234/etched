@@ -5,7 +5,9 @@ import gg.moonflower.etched.api.record.TrackData;
 import gg.moonflower.etched.api.sound.source.AudioSource;
 import gg.moonflower.etched.api.sound.source.RawAudioSource;
 import gg.moonflower.etched.api.sound.source.StreamingAudioSource;
+import gg.moonflower.etched.api.sound.StreamTitles;
 import gg.moonflower.etched.api.util.DownloadProgressListener;
+import gg.moonflower.etched.api.util.StationPlaylist;
 import gg.moonflower.etched.client.AlbumCoverCache;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
@@ -20,6 +22,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -61,7 +64,16 @@ public final class SoundSourceManager {
         if (sourceOptional.isEmpty()) {
             return CompletableFuture.supplyAsync(() -> {
                 try {
-                    return new RawAudioSource(new URI(ShareLinks.toDirectUrl(url)).toURL(), listener, false, type);
+                    String target = ShareLinks.toDirectUrl(url);
+                    if (StationPlaylist.isPlaylist(target)) {
+                        List<String> stations = StationPlaylist.expand(target);
+                        if (stations.isEmpty()) {
+                            throw new IOException("The playlist has no stations");
+                        }
+                        target = StationPlaylist.firstReachable(stations);
+                        StreamTitles.alias(url, target);
+                    }
+                    return new RawAudioSource(new URI(target).toURL(), listener, false, type);
                 } catch (Throwable t) {
                     throw new CompletionException("Failed to download audio: " + url, t);
                 }

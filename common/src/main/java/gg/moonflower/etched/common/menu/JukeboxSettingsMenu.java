@@ -2,6 +2,7 @@ package gg.moonflower.etched.common.menu;
 
 import gg.moonflower.etched.common.blockentity.VolumeControlled;
 import gg.moonflower.etched.core.registry.EtchedMenus;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -16,8 +17,11 @@ public class JukeboxSettingsMenu extends AbstractContainerMenu implements SoundS
     private final ContainerLevelAccess access;
     private final float initialVolume;
 
-    public JukeboxSettingsMenu(int id, float volume) {
+    private BlockPos pos = BlockPos.ZERO;
+
+    public JukeboxSettingsMenu(int id, BlockPos pos, float volume) {
         this(id, ContainerLevelAccess.NULL, volume);
+        this.pos = pos;
     }
 
     public JukeboxSettingsMenu(int id, ContainerLevelAccess access, float volume) {
@@ -43,6 +47,13 @@ public class JukeboxSettingsMenu extends AbstractContainerMenu implements SoundS
                 jukebox.setVolume(volume);
             }
         });
+    }
+
+    /**
+     * @return The position of the jukebox on the client
+     */
+    public BlockPos getPos() {
+        return this.pos;
     }
 
     /**

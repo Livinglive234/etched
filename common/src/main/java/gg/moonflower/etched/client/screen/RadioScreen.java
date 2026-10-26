@@ -1,5 +1,9 @@
 package gg.moonflower.etched.client.screen;
 
+import gg.moonflower.etched.api.sound.SoundTracker;
+import gg.moonflower.etched.client.radio.RadioSession;
+import gg.moonflower.etched.api.sound.StreamTitles;
+import gg.moonflower.etched.common.blockentity.RadioBlockEntity;
 import gg.moonflower.etched.client.radio.history.RadioHistory;
 import gg.moonflower.etched.common.network.play.ServerboundSoundSettingsPacket;
 import gg.moonflower.etched.platform.EtchedPlatform;
@@ -62,11 +66,39 @@ public class RadioScreen extends AbstractContainerScreen<RadioMenu> implements U
             RadioHistory.clear();
             this.history.setStations(List.of());
         }).bounds(this.leftPos + 8, this.topPos + 131, 160, 14).build());
-        this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, button -> {
+        int buttonWidth = (this.imageWidth - 8) / 3;
+        int buttonY = this.topPos + this.imageHeight + 5;
+        this.addRenderableWidget(Button.builder(Component.translatable("screen." + Etched.MOD_ID + ".radio.play"), button -> {
             RadioHistory.submitted(this.url.getValue());
             EtchedPlatform.get().sendToServer(new SetUrlPacket(this.url.getValue()));
-            Minecraft.getInstance().player.closeContainer();
-        }).bounds((this.width - this.imageWidth) / 2, (this.height - this.imageHeight) / 2 + this.imageHeight + 5, this.imageWidth, 20).build());
+            // A station that is already set will not change, so it has to be started here
+            if (this.minecraft.level != null && this.minecraft.level.getBlockEntity(this.menu.getPos()) instanceof RadioBlockEntity radio && this.url.getValue().equals(radio.getUrl())) {
+                SoundTracker.restartRadio(this.minecraft.level, this.menu.getPos());
+            } else {
+                RadioSession.resume(this.menu.getPos());
+            }
+        }).bounds(this.leftPos, buttonY, buttonWidth, 20).build());
+        this.addRenderableWidget(Button.builder(Component.translatable("screen." + Etched.MOD_ID + ".radio.stop"), button -> {
+            if (this.minecraft.level != null) {
+                SoundTracker.stopRadio(this.minecraft.level, this.menu.getPos());
+            }
+        }).bounds(this.leftPos + buttonWidth + 4, buttonY, buttonWidth, 20).build());
+        this.addRenderableWidget(Button.builder(Component.translatable("screen." + Etched.MOD_ID + ".radio.close"), button -> Minecraft.getInstance().player.closeContainer())
+                .bounds(this.leftPos + 2 * (buttonWidth + 4), buttonY, this.imageWidth - 2 * (buttonWidth + 4), 20).build());
+    }
+
+    @Override
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        int attempt = RadioSession.reconnectAttempt(this.menu.getPos());
+        if (attempt > 0) {
+            NowPlayingHeader.render(guiGraphics, this.font, this.width, this.topPos, Component.translatable("screen." + Etched.MOD_ID + ".radio.reconnecting", attempt, RadioSession.MAX_RECONNECTS));
+        } else if (this.minecraft.level != null && SoundTracker.isPlayingAt(this.menu.getPos())) {
+            String station = this.minecraft.level.getBlockEntity(this.menu.getPos()) instanceof RadioBlockEntity radio && radio.getUrl() != null ? radio.getUrl() : this.menu.getInitialUrl();
+            String title = StreamTitles.get(station);
+            NowPlayingHeader.render(guiGraphics, this.font, this.width, this.topPos, title != null ? Component.literal(title) : Component.translatable("screen." + Etched.MOD_ID + ".radio.internet_radio"));
+        }
+        this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
     @Override

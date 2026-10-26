@@ -98,6 +98,10 @@ public class AlbumJukeboxScreen extends AbstractContainerScreen<AlbumJukeboxMenu
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         super.render(graphics, mouseX, mouseY, partialTick);
+        if (this.minecraft.level != null && SoundTracker.isPlayingAt(this.menu.getPos()) && this.playingIndex >= 0 && this.minecraft.level.getBlockEntity(this.menu.getPos()) instanceof AlbumJukeboxBlockEntity jukebox) {
+            List<TrackData> tracks = PlayableRecord.getTracks(this.minecraft.level.registryAccess(), jukebox.getItem(this.playingIndex));
+            NowPlayingHeader.render(graphics, this.font, this.width, this.topPos, this.playingTrack >= 0 && this.playingTrack < tracks.size() ? tracks.get(this.playingTrack).getDisplayName() : NowPlayingHeader.forRecord(this.minecraft.level.registryAccess(), jukebox.getItem(this.playingIndex)));
+        }
         this.renderTooltip(graphics, mouseX, mouseY);
     }
 

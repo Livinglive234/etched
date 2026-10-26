@@ -1,5 +1,7 @@
 package gg.moonflower.etched.client.screen;
 
+import gg.moonflower.etched.api.sound.SoundTracker;
+import net.minecraft.world.level.block.entity.JukeboxBlockEntity;
 import gg.moonflower.etched.common.menu.JukeboxSettingsMenu;
 import gg.moonflower.etched.common.network.play.ServerboundSoundSettingsPacket;
 import gg.moonflower.etched.core.Etched;
@@ -50,6 +52,9 @@ public class JukeboxSettingsScreen extends AbstractContainerScreen<JukeboxSettin
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
+        if (this.minecraft.level != null && SoundTracker.isPlayingAt(this.menu.getPos()) && this.minecraft.level.getBlockEntity(this.menu.getPos()) instanceof JukeboxBlockEntity jukebox) {
+            NowPlayingHeader.render(guiGraphics, this.font, this.width, this.topPos, NowPlayingHeader.forRecord(this.minecraft.level.registryAccess(), jukebox.getTheItem()));
+        }
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
 }

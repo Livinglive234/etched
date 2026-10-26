@@ -33,7 +33,10 @@ public class JukeboxBlockMixin {
         }
 
         if (player instanceof ServerPlayer serverPlayer) {
-            EtchedPlatform.get().openMenu(serverPlayer, new SimpleMenuProvider((id, inventory, p) -> new JukeboxSettingsMenu(id, ContainerLevelAccess.create(level, pos), jukebox.getVolume()), Component.translatable("container." + Etched.MOD_ID + ".jukebox_settings")), buf -> buf.writeFloat(jukebox.getVolume()));
+            EtchedPlatform.get().openMenu(serverPlayer, new SimpleMenuProvider((id, inventory, p) -> new JukeboxSettingsMenu(id, ContainerLevelAccess.create(level, pos), jukebox.getVolume()), Component.translatable("container." + Etched.MOD_ID + ".jukebox_settings")), buf -> {
+                buf.writeBlockPos(pos);
+                buf.writeFloat(jukebox.getVolume());
+            });
         }
         cir.setReturnValue(InteractionResult.sidedSuccess(level.isClientSide()));
     }

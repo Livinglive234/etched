@@ -24,6 +24,7 @@ public class BoomboxScreen extends AbstractContainerScreen<BoomboxMenu> {
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
+        NowPlayingHeader.render(guiGraphics, this.font, this.width, this.topPos, this.minecraft.level != null ? NowPlayingHeader.forRecord(this.minecraft.level.registryAccess(), this.menu.getSlot(0).getItem()) : null);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
 

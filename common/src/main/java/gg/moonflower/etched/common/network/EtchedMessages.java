@@ -10,7 +10,7 @@ public class EtchedMessages {
     /**
      * The network protocol version of the Etched payloads. Raised when the radio menu started to send the volume.
      */
-    public static final String VERSION = "5";
+    public static final String VERSION = "6";
 
     public static void init(PacketRegistry registry) {
         // Client
