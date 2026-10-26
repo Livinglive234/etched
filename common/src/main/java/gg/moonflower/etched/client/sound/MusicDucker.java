@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Stops the game's background music while a radio, jukebox or boombox of this mod can be heard, so the two do not play over each other.
@@ -15,7 +16,7 @@ import java.util.WeakHashMap;
 public final class MusicDucker {
 
     private static final Set<AbstractOnlineSoundInstance> SOUNDS = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
-    private static boolean registered;
+    private static final AtomicBoolean REGISTERED = new AtomicBoolean();
 
     private MusicDucker() {
     }
@@ -24,11 +25,8 @@ public final class MusicDucker {
      * Starts watching a sound of this mod.
      */
     public static void track(AbstractOnlineSoundInstance sound) {
-        synchronized (MusicDucker.class) {
-            if (!registered) {
-                registered = true;
-                EtchedPlatform.get().addClientTickListener(MusicDucker::tick);
-            }
+        if (REGISTERED.compareAndSet(false, true)) {
+            EtchedPlatform.get().addClientTickListener(MusicDucker::tick);
         }
         SOUNDS.add(sound);
     }

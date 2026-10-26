@@ -48,6 +48,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import java.util.function.ToDoubleFunction;
 
 /**
  * Tracks entity sounds and all etched playing sounds for the client side.
@@ -155,6 +156,13 @@ public class SoundTracker {
                 }, stream ? AudioSource.AudioFileType.STREAM : AudioSource.AudioFileType.FILE);
     }
 
+    private static DoubleSupplier axis(Supplier<Vec3> position, ToDoubleFunction<Vec3> axis) {
+        return () -> {
+            Vec3 pos = position.get();
+            return pos != null ? axis.applyAsDouble(pos) : 0.0;
+        };
+    }
+
     /**
      * Creates an online sound that follows a point which can move, such as a block on a Create contraption.
      *
@@ -170,10 +178,7 @@ public class SoundTracker {
             return null;
         }
 
-        DoubleSupplier x = () -> Optional.ofNullable(position.get()).map(Vec3::x).orElse(0.0);
-        DoubleSupplier y = () -> Optional.ofNullable(position.get()).map(Vec3::y).orElse(0.0);
-        DoubleSupplier z = () -> Optional.ofNullable(position.get()).map(Vec3::z).orElse(0.0);
-        return new OnlineRecordSoundInstance(url, position, 4.0F, attenuationDistance, new MusicDownloadListener(title, x, y, z) {
+        return new OnlineRecordSoundInstance(url, position, 4.0F, attenuationDistance, new MusicDownloadListener(title, axis(position, Vec3::x), axis(position, Vec3::y), axis(position, Vec3::z)) {
             @Override
             public void onSuccess() {
                 this.clearComponent();
@@ -369,7 +374,7 @@ public class SoundTracker {
         }
 
         StopListeningSound sound = StopListeningSound.create(getEtchedRecord(url, trackData.getDisplayName(), level, pos, AudioSource.AudioFileType.FILE), () -> Minecraft.getInstance().tell(() -> {
-            if (!((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).getPlayingJukeboxSongs().containsKey(pos)) {
+            if (!isPlayingAt(pos)) {
                 return;
             }
             playBlockRecord(pos, tracks, track + 1, storageId);
@@ -474,7 +479,7 @@ public class SoundTracker {
     }
 
     /**
-     * Plays the records on an album jukebox in order.
+     * Plays the stream of a radio, or stops the one playing there.
      *
      * @param url   The URL of the stream
      * @param state The block state of the radio

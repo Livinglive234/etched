@@ -68,6 +68,9 @@ public class OnlineRecordSoundInstance extends AbstractOnlineSoundInstance imple
      * Puts the sound where its block really is when something else moves the block, such as a ship.
      */
     private void followAnchor() {
+        if (!SoundPositions.isActive()) {
+            return;
+        }
         Vec3 world = SoundPositions.toWorld(this.anchorX, this.anchorY, this.anchorZ);
         this.x = world != null ? world.x : this.anchorX;
         this.y = world != null ? world.y : this.anchorY;

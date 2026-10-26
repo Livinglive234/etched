@@ -26,16 +26,19 @@ public class JukeboxMovementBehaviour implements MovementBehaviour {
     @Override
     public void startMoving(MovementContext context) {
         // Vanilla jukeboxes don't send their disc or volume to clients, so add them to the data Create syncs
-        if (!this.album && !context.world.isClientSide() && context.blockEntityData != null) {
-            CompoundTag updateTag = CreateCompat.getUpdateTag(context.contraption, context.localPos);
-            if (updateTag != null) {
-                if (context.blockEntityData.contains("RecordItem")) {
-                    updateTag.put("RecordItem", context.blockEntityData.getCompound("RecordItem").copy());
-                }
-                if (context.blockEntityData.contains("EtchedVolume")) {
-                    updateTag.putFloat("EtchedVolume", context.blockEntityData.getFloat("EtchedVolume"));
-                }
-            }
+        if (this.album || context.world.isClientSide() || context.blockEntityData == null) {
+            return;
+        }
+
+        CompoundTag updateTag = CreateCompat.getUpdateTag(context.contraption, context.localPos);
+        if (updateTag == null) {
+            return;
+        }
+        if (context.blockEntityData.contains("RecordItem")) {
+            updateTag.put("RecordItem", context.blockEntityData.getCompound("RecordItem").copy());
+        }
+        if (context.blockEntityData.contains("EtchedVolume")) {
+            updateTag.putFloat("EtchedVolume", context.blockEntityData.getFloat("EtchedVolume"));
         }
     }
 

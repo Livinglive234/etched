@@ -28,8 +28,7 @@ public class RadioMovingInteraction extends MovingInteractionBehaviour {
             return true;
         }
 
-        Object entity = contraptionEntity;
-        CompoundTag data = CreateCompat.getBlockData(entity, localPos);
+        CompoundTag data = CreateCompat.getBlockData(contraptionEntity, localPos);
         if (data == null) {
             return false;
         }
@@ -39,7 +38,7 @@ public class RadioMovingInteraction extends MovingInteractionBehaviour {
         RadioMenu.Controls controls = new RadioMenu.Controls() {
             @Override
             public boolean stillValid(Player user) {
-                return CreateCompat.canUse(entity, localPos, EtchedBlocks.RADIO.get(), user);
+                return CreateCompat.canUse(contraptionEntity, localPos, EtchedBlocks.RADIO.get(), user);
             }
 
             @Override
@@ -47,21 +46,21 @@ public class RadioMovingInteraction extends MovingInteractionBehaviour {
                 CompoundTag change = new CompoundTag();
                 change.putString("Url", newUrl);
                 change.putBoolean("Stopped", false); // A new station starts playing
-                CreateCompat.updateBlockData(entity, localPos, change);
+                CreateCompat.updateBlockData(contraptionEntity, localPos, change);
             }
 
             @Override
             public void setStopped(boolean stopped) {
                 CompoundTag change = new CompoundTag();
                 change.putBoolean("Stopped", stopped);
-                CreateCompat.updateBlockData(entity, localPos, change);
+                CreateCompat.updateBlockData(contraptionEntity, localPos, change);
             }
 
             @Override
             public void setVolume(float newVolume) {
                 CompoundTag change = new CompoundTag();
                 change.putFloat("Volume", Math.max(0.0F, Math.min(1.0F, newVolume)));
-                CreateCompat.updateBlockData(entity, localPos, change);
+                CreateCompat.updateBlockData(contraptionEntity, localPos, change);
             }
         };
 

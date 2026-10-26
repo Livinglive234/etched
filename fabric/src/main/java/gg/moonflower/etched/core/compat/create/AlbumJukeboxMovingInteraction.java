@@ -27,18 +27,17 @@ public class AlbumJukeboxMovingInteraction extends MovingInteractionBehaviour {
             return true;
         }
 
-        Object entity = contraptionEntity;
-        CompoundTag data = CreateCompat.getBlockData(entity, localPos);
-        if (data == null && ContraptionAccess.contraption(entity) == null) {
+        CompoundTag data = CreateCompat.getBlockData(contraptionEntity, localPos);
+        if (data == null && ContraptionAccess.contraption(contraptionEntity) == null) {
             return false;
         }
 
         float volume = CreateCompat.getVolume(data, "Volume");
         EtchedPlatform.get().openMenu(serverPlayer, new SimpleMenuProvider((menuId, inventory, menuPlayer) ->
-                new AlbumJukeboxMenu(menuId, inventory, new ContraptionAlbumJukeboxContainer(entity, localPos), localPos, volume, newVolume -> {
+                new AlbumJukeboxMenu(menuId, inventory, new ContraptionAlbumJukeboxContainer(contraptionEntity, localPos), localPos, volume, newVolume -> {
                     CompoundTag change = new CompoundTag();
                     change.putFloat("Volume", newVolume);
-                    CreateCompat.updateBlockData(entity, localPos, change);
+                    CreateCompat.updateBlockData(contraptionEntity, localPos, change);
                 }), CONTAINER_TITLE), buf -> {
             buf.writeBlockPos(localPos);
             buf.writeBoolean(true);

@@ -9,6 +9,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.function.Consumer;
+
 /**
  * @author Ocelot
  */
@@ -42,31 +44,27 @@ public class RadioMenu extends AbstractContainerMenu implements UrlMenu, SoundSe
 
             @Override
             public void setUrl(String url) {
-                access.execute((level, pos) -> {
-                    if (level.getBlockEntity(pos) instanceof RadioBlockEntity be) {
-                        be.setUrl(url);
-                    }
-                });
+                withRadio(access, be -> be.setUrl(url));
             }
 
             @Override
             public void setStopped(boolean stopped) {
-                access.execute((level, pos) -> {
-                    if (level.getBlockEntity(pos) instanceof RadioBlockEntity be) {
-                        be.setStopped(stopped);
-                    }
-                });
+                withRadio(access, be -> be.setStopped(stopped));
             }
 
             @Override
             public void setVolume(float volume) {
-                access.execute((level, pos) -> {
-                    if (level.getBlockEntity(pos) instanceof RadioBlockEntity be) {
-                        be.setVolume(volume);
-                    }
-                });
+                withRadio(access, be -> be.setVolume(volume));
             }
         }, false);
+    }
+
+    private static void withRadio(ContainerLevelAccess access, Consumer<RadioBlockEntity> action) {
+        access.execute((level, pos) -> {
+            if (level.getBlockEntity(pos) instanceof RadioBlockEntity be) {
+                action.accept(be);
+            }
+        });
     }
 
     /**

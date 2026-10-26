@@ -4,12 +4,9 @@ import gg.moonflower.etched.api.sound.download.SoundDownloadSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -115,14 +112,7 @@ public final class StationPlaylist {
                 LOGGER.warn("Playlist {} answered {}", url, connection.getResponseCode());
                 return;
             }
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(BoundedStreams.limit(connection.getInputStream(), BoundedStreams.MAX_PLAYLIST_BYTES), StandardCharsets.UTF_8))) {
-                StringBuilder builder = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    builder.append(line).append('\n');
-                }
-                content = builder.toString();
-            }
+            content = BoundedStreams.readString(connection.getInputStream(), BoundedStreams.MAX_PLAYLIST_BYTES);
         } catch (IOException e) {
             LOGGER.warn("Could not read playlist {}", url, e);
             return;
