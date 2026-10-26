@@ -77,7 +77,7 @@ Fabric port and no code or ideas were taken from it.
 |---|---|---|
 | Bard villager | Original | Works at a note block and trades discs, note blocks, labels, blank discs and Etched blocks. |
 | Bard houses in villages | Original | For plains, desert, savanna, snowy and taiga villages. |
-| Dancing parrots | Original | Parrots dance to radios, album jukeboxes and jukeboxes that are playing Etched music, with an option for smoother dancing. |
+| Dancing parrots | Original | Parrots dance to radios, album jukeboxes and jukeboxes that are playing Etched music. They also dance within about 3.5 blocks of anything carrying a playing boombox, and of a jukebox minecart. Parrots on a shoulder do not dance. There is an option for smoother dancing. |
 | Now Playing text hidden for far or covered jukeboxes | Original | The text is not shown when a jukebox is covered or too far away. |
 
 ## Options
