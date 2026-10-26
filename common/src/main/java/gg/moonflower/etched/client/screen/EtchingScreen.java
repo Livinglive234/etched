@@ -1,5 +1,10 @@
 package gg.moonflower.etched.client.screen;
 
+import net.minecraft.client.Minecraft;
+import java.util.concurrent.CompletionException;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import gg.moonflower.etched.common.network.play.ServerboundEtchTrackDataPacket;
+import gg.moonflower.etched.api.sound.download.SoundSourceManager;
 import gg.moonflower.etched.platform.EtchedPlatform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
@@ -89,8 +94,35 @@ public class EtchingScreen extends AbstractContainerScreen<EtchingMenu> implemen
             if (this.urlTicks <= 0 && !Objects.equals(this.oldUrl, this.url.getValue())) {
                 this.oldUrl = this.url.getValue();
                 EtchedPlatform.get().sendToServer(new SetUrlPacket(this.url.getValue()));
+                resolveTracks(this.url.getValue());
             }
         }
+    }
+
+    /**
+     * Resolves the tracks for the URL and sends them to the server, which may not be able to reach the music service itself.
+     * <p>
+     * Ported from BazZziliuS/etched, https://github.com/BazZziliuS/etched
+     */
+    private static void resolveTracks(String url) {
+        Minecraft minecraft = Minecraft.getInstance();
+        ClientPacketListener connection = minecraft.getConnection();
+        if (connection == null || !EtchedPlatform.get().canSendToServer(ServerboundEtchTrackDataPacket.TYPE) || !SoundSourceManager.isValidUrl(url)) {
+            return;
+        }
+
+        SoundSourceManager.resolveTracks(url, null, minecraft.getProxy()).whenCompleteAsync((tracks, error) -> {
+            if (minecraft.getConnection() != connection) { // Left the server while resolving
+                return;
+            }
+            if (error != null) {
+                Etched.LOGGER.warn("Failed to resolve tracks for {}", url, error);
+                Throwable cause = error instanceof CompletionException && error.getCause() != null ? error.getCause() : error;
+                EtchedPlatform.get().sendToServer(ServerboundEtchTrackDataPacket.failure(url, Objects.requireNonNullElse(cause.getMessage(), cause.getClass().getSimpleName())));
+            } else {
+                EtchedPlatform.get().sendToServer(ServerboundEtchTrackDataPacket.success(url, List.of(tracks)));
+            }
+        }, minecraft);
     }
 
     @Override

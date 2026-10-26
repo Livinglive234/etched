@@ -37,6 +37,11 @@ public class NeoForgePacketRegistry implements PacketRegistry {
     }
 
     @Override
+    public <T extends CustomPacketPayload> void playToServerOptional(CustomPacketPayload.Type<T> type, StreamCodec<? super RegistryFriendlyByteBuf, T> codec, PacketHandler<T> serverHandler) {
+        this.registrar.optional().playToServer(type, codec, (payload, context) -> serverHandler.handle(payload, context.player()));
+    }
+
+    @Override
     public <T extends CustomPacketPayload> void playBidirectional(CustomPacketPayload.Type<T> type, StreamCodec<? super RegistryFriendlyByteBuf, T> codec, Supplier<PacketHandler<T>> clientHandler, PacketHandler<T> serverHandler) {
         IPayloadHandler<T> client = clientHandler(clientHandler);
         this.registrar.playBidirectional(type, codec, (payload, context) -> {

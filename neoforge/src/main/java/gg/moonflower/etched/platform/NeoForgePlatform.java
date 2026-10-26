@@ -2,6 +2,7 @@ package gg.moonflower.etched.platform;
 
 import gg.moonflower.etched.core.Etched;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Registry;
@@ -119,6 +120,17 @@ public class NeoForgePlatform implements EtchedPlatform {
     @Override
     public void sendToServer(CustomPacketPayload payload) {
         PacketDistributor.sendToServer(payload);
+    }
+
+    @Override
+    public boolean canSendToServer(CustomPacketPayload.Type<?> type) {
+        ClientPacketListener connection = Minecraft.getInstance().getConnection();
+        return connection != null && connection.hasChannel(type);
+    }
+
+    @Override
+    public boolean canClientSendToServer(ServerPlayer player, CustomPacketPayload.Type<?> type) {
+        return player.connection.hasChannel(type);
     }
 
     @Override

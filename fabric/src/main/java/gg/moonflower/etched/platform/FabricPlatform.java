@@ -144,6 +144,16 @@ public class FabricPlatform implements EtchedPlatform {
     }
 
     @Override
+    public boolean canSendToServer(CustomPacketPayload.Type<?> type) {
+        return FabricClientHooks.canSendToServer(type);
+    }
+
+    @Override
+    public boolean canClientSendToServer(ServerPlayer player, CustomPacketPayload.Type<?> type) {
+        return true; // Fabric clients cannot join without the payload types the mod registers
+    }
+
+    @Override
     public void sendToPlayer(ServerPlayer player, CustomPacketPayload payload) {
         ServerPlayNetworking.send(player, payload);
     }

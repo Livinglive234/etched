@@ -30,6 +30,18 @@ public interface PacketRegistry {
     <T extends CustomPacketPayload> void playToServer(CustomPacketPayload.Type<T> type, StreamCodec<? super RegistryFriendlyByteBuf, T> codec, PacketHandler<T> serverHandler);
 
     /**
+     * Registers a payload sent from the client to the server that the other side does not have to support. Use
+     * {@link EtchedPlatform#canSendToServer} and {@link EtchedPlatform#canClientSendToServer} to check whether it can be used.
+     *
+     * @param type          The type of the payload
+     * @param codec         The codec to read and write the payload
+     * @param serverHandler The handler on the server
+     */
+    default <T extends CustomPacketPayload> void playToServerOptional(CustomPacketPayload.Type<T> type, StreamCodec<? super RegistryFriendlyByteBuf, T> codec, PacketHandler<T> serverHandler) {
+        this.playToServer(type, codec, serverHandler);
+    }
+
+    /**
      * Registers a payload sent in both directions.
      */
     default <T extends CustomPacketPayload> void playBidirectional(CustomPacketPayload.Type<T> type, StreamCodec<? super RegistryFriendlyByteBuf, T> codec, Supplier<PacketHandler<T>> clientHandler, PacketHandler<T> serverHandler) {

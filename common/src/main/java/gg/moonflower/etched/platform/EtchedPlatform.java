@@ -69,6 +69,16 @@ public interface EtchedPlatform {
 
     void sendToServer(CustomPacketPayload payload);
 
+    /**
+     * Checks whether the connected server accepts the specified payload. Client only.
+     */
+    boolean canSendToServer(CustomPacketPayload.Type<?> type);
+
+    /**
+     * Checks whether the client of a player is able to send the specified payload to the server.
+     */
+    boolean canClientSendToServer(ServerPlayer player, CustomPacketPayload.Type<?> type);
+
     void sendToPlayer(ServerPlayer player, CustomPacketPayload payload);
 
     void sendToPlayersNear(ServerLevel level, double x, double y, double z, double radius, CustomPacketPayload payload);

@@ -20,6 +20,10 @@ final class FabricClientHooks {
         ClientPlayNetworking.registerGlobalReceiver(type, (payload, context) -> handler.handle(payload, context.player()));
     }
 
+    static boolean canSendToServer(CustomPacketPayload.Type<?> type) {
+        return ClientPlayNetworking.canSend(type);
+    }
+
     static BakedModel getStandaloneModel(ModelResourceLocation location) {
         ModelManager manager = Minecraft.getInstance().getModelManager();
         BakedModel model = ((FabricBakedModelManager) manager).getModel(location.id());
