@@ -28,7 +28,7 @@ Fabric port and no code or ideas were taken from it.
 | Boombox | Original | Plays a disc while it is in your inventory or hand. Discs are right-clicked into it, and sneak and use pauses it. |
 | Jukebox minecart | Original | A minecart that plays a disc, started again by an activator rail. |
 | Album jukebox | Original | A jukebox that holds several discs, with a screen to choose the track. |
-| Radio | Original | Plays an internet radio stream from a URL, with a menu to set it, and can be stopped with redstone. |
+| Radio | Original | Plays an internet radio stream from a URL, with a menu to set it, and stops while it is powered by redstone. |
 | Portal radio | Original | A radio variant with its own look. A radio becomes one with cake, or when a radio item is thrown into the nether. |
 | Vanilla jukebox plays Etched discs | Original | Etched discs and album covers can be put in the vanilla jukebox, which then gives a comparator signal. |
 
@@ -77,8 +77,8 @@ Fabric port and no code or ideas were taken from it.
 |---|---|---|
 | Bard villager | Original | Works at a note block and trades discs, note blocks, labels, blank discs and Etched blocks. |
 | Bard houses in villages | Original | For plains, desert, savanna, snowy and taiga villages. |
-| Dancing parrots | Original | Parrots dance to Etched radios, jukeboxes and boomboxes, with an option for smoother dancing. |
-| Now Playing text hidden for far or covered jukeboxes | Original | Matches the vanilla jukebox. |
+| Dancing parrots | Original | Parrots dance to radios, album jukeboxes and jukeboxes that are playing Etched music, with an option for smoother dancing. |
+| Now Playing text hidden for far or covered jukeboxes | Original | The text is not shown when a jukebox is covered or too far away. |
 
 ## Options
 
@@ -87,7 +87,7 @@ Fabric port and no code or ideas were taken from it.
 | Force Stereo, Smooth Parrot Animation | Original | Client options. |
 | Use boombox menu, Use album cover menu | Original | Server options that swap right-clicking discs for a menu. |
 | Allow Private Network Stations | Fork, idea | See network safety above. |
-| 13 languages | Original | English plus translations by the community. |
+| 13 language files | Original | English plus translations by the community. |
 
 ## Omitted features
 
