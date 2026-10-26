@@ -68,7 +68,7 @@ Fabric port and no code or ideas were taken from it.
 
 | Feature | Origin | Details |
 |---|---|---|
-| NeoForge 1.21.1 | Original | Builds against NeoForge 21.1.265 and supports 21.1.0 or newer. |
+| NeoForge 1.21.1 | Original | Builds against NeoForge 21.1.265 and supports 21.1.0 or newer. Development of the NeoForge side is stalled. It builds, its server starts and its data generation works, but it has not been played in game since the move to two loaders. |
 | Fabric 1.21.1 | Created here | Uses Fabric API and Forge Config API Port. |
 | One codebase for both loaders | Created here | `common`, `neoforge` and `fabric` modules with a small platform layer. |
 | Data generation on both loaders | Created here | Tags, recipes and loot are defined once. NeoForge generates the item models with its own provider and Fabric with a custom provider that matches it. |

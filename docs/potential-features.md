@@ -49,4 +49,5 @@ Sources are read-only references:
 | Item | Notes |
 |---|---|
 | Automated tests | There are none. The network policy and the AAC decoder are the obvious first targets. |
-| NeoForge and Fabric in-game test pass | Only the servers and the Fabric client title screen have been started so far. |
+| Multiplayer test pass | Joining a dedicated server with a second player, and the Google Drive and Dropbox share links, have not been tried. |
+| NeoForge in-game test pass | Stalled. The NeoForge build has not been played in game since the move to two loaders. |
