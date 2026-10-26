@@ -53,5 +53,4 @@ Sources are read-only references:
 | Item | Notes |
 |---|---|
 | Automated tests | There are none. The network policy and the AAC decoder are the obvious first targets. |
-| Fabric grindstone shift-click | Shift-clicking an album cover into the grindstone does not work on Fabric, placing it directly does. |
 | NeoForge and Fabric in-game test pass | Only the servers and the Fabric client title screen have been started so far. |
