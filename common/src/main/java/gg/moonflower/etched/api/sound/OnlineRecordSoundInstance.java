@@ -18,6 +18,10 @@ public class OnlineRecordSoundInstance extends AbstractOnlineSoundInstance imple
     private final Entity entity;
     private final Supplier<Vec3> position;
     private boolean stopped;
+    private boolean anchored;
+    private double anchorX;
+    private double anchorY;
+    private double anchorZ;
 
     public OnlineRecordSoundInstance(String url, Entity entity, float volume, int attenuationDistance, DownloadProgressListener progressListener, AudioSource.AudioFileType type) {
         super(url, null, attenuationDistance, SoundSource.RECORDS, progressListener, type, entity == Minecraft.getInstance().player);
@@ -53,6 +57,21 @@ public class OnlineRecordSoundInstance extends AbstractOnlineSoundInstance imple
         this.x = x;
         this.y = y;
         this.z = z;
+        this.anchored = true;
+        this.anchorX = x;
+        this.anchorY = y;
+        this.anchorZ = z;
+        this.followAnchor();
+    }
+
+    /**
+     * Puts the sound where its block really is when something else moves the block, such as a ship.
+     */
+    private void followAnchor() {
+        Vec3 world = SoundPositions.toWorld(this.anchorX, this.anchorY, this.anchorZ);
+        this.x = world != null ? world.x : this.anchorX;
+        this.y = world != null ? world.y : this.anchorY;
+        this.z = world != null ? world.z : this.anchorZ;
     }
 
     public OnlineRecordSoundInstance(String url, double x, double y, double z, int attenuationDistance, DownloadProgressListener progressListener, AudioSource.AudioFileType type) {
@@ -61,6 +80,10 @@ public class OnlineRecordSoundInstance extends AbstractOnlineSoundInstance imple
 
     @Override
     public void tick() {
+        if (this.anchored) {
+            this.followAnchor();
+            return;
+        }
         if (this.position != null) {
             Vec3 pos = this.position.get();
             if (pos == null) {
