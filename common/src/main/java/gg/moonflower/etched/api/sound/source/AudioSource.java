@@ -149,6 +149,7 @@ public interface AudioSource {
                     if (!type.isStream()) {
                         throw new IOException("The provided URL is a stream, but that is not supported");
                     }
+                    connection.disconnect(); // Only the headers were needed, the stream is opened again below
                     return () -> new AsyncInputStream(() -> {
                         // Live streams must never be replayed from the cache
                         Map<String, String> streamHeaders = new HashMap<>(getDownloadHeaders());

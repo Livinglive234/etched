@@ -19,13 +19,6 @@ public final class SoundPositions {
     }
 
     /**
-     * @return Whether anything moves blocks, so positions have to be converted at all
-     */
-    public static boolean isActive() {
-        return transformer != null;
-    }
-
-    /**
      * @return The position in the world of the block at the stored position, or <code>null</code> if it is not moved
      */
     public static @Nullable Vec3 toWorld(double x, double y, double z) {

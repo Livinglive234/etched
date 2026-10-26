@@ -130,29 +130,7 @@ public final class PlayableRecord {
      * @return The number of tracks on the record
      */
     public static int getTrackCount(HolderLookup.Provider registries, ItemStack stack) {
-        if (stack.isEmpty()) {
-            return 0;
-        }
-
-        int tracks = 0;
-        Optional<Holder<JukeboxSong>> optional = JukeboxSong.fromStack(registries, stack);
-        if (optional.isPresent()) {
-            JukeboxSongExt song = (JukeboxSongExt) (Object) optional.get().value();
-            tracks += song.veil$tracks().size();
-        }
-
-        MusicTrackComponent music = stack.get(EtchedComponents.MUSIC.get());
-        if (music != null) {
-            tracks += music.tracks().size();
-        }
-
-        AlbumCoverComponent albumCover = stack.get(EtchedComponents.ALBUM_COVER.get());
-        if (albumCover != null) {
-            for (ItemStack record : albumCover.getItems()) {
-                tracks += getTrackCount(registries, record);
-            }
-        }
-        return tracks;
+        return getTracks(registries, stack).size();
     }
 
     /**
@@ -184,7 +162,7 @@ public final class PlayableRecord {
      * @return The sound to play or nothing to error
      */
     public static Optional<SoundInstance> createEntitySound(ItemStack stack, Entity entity, int track) {
-        return PlayableRecordClient.createEntitySound(stack, entity, track);
+        return PlayableRecordClient.createEntitySound(stack, entity, track, 16);
     }
 
     /**
@@ -210,7 +188,7 @@ public final class PlayableRecord {
      * @return The sound to play or nothing to error
      */
     public static Optional<SoundInstance> createBlockSound(ItemStack stack, CommonLevelAccessor level, BlockPos pos, int track) {
-        return PlayableRecordClient.createBlockSound(stack, level, pos, track);
+        return PlayableRecordClient.createBlockSound(stack, level, pos, track, 16);
     }
 
     /**

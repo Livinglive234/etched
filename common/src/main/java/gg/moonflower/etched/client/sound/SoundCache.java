@@ -42,7 +42,6 @@ public final class SoundCache {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Gson GSON = new GsonBuilder().registerTypeAdapter(CacheMetadata.class, new MetadataSerializer()).create();
     private static final Path CACHE_FOLDER = Minecraft.getInstance().gameDirectory.toPath().resolve(Etched.MOD_ID + "-sounds");
-    private static final ReentrantLock DOWNLOAD_LOCK = new ReentrantLock();
     private static final ReentrantLock METADATA_LOCK = new ReentrantLock();
     private static final ReentrantLock IO_LOCK = new ReentrantLock();
     private static final Type CACHE_METADATA_TYPE = new TypeToken<Map<String, CacheMetadata>>() {
@@ -137,26 +136,16 @@ public final class SoundCache {
      */
     public static CompletableFuture<AudioSource> getAudioStream(String url, @Nullable DownloadProgressListener listener, AudioSource.AudioFileType type) {
         try {
-            return SOURCE_CACHE.get(url, () -> {
-                try {
-                    DOWNLOAD_LOCK.lock();
-
-                    CompletableFuture<AudioSource> future = SoundSourceManager.getAudioSource(url, listener, Minecraft.getInstance().getProxy(), type).handle((source, e) -> {
-                        if (e != null) {
-                            if (listener != null) {
-                                listener.onFail();
-                            }
-                            throw new CompletionException(e);
-                        }
-                        return source;
-                    });
-
-                    SOURCE_CACHE.put(url, future);
-                    return future;
-                } finally {
-                    DOWNLOAD_LOCK.unlock();
+            // The cache loads each address once, so a second request for it shares the first download
+            return SOURCE_CACHE.get(url, () -> SoundSourceManager.getAudioSource(url, listener, Minecraft.getInstance().getProxy(), type).handle((source, e) -> {
+                if (e != null) {
+                    if (listener != null) {
+                        listener.onFail();
+                    }
+                    throw new CompletionException(e);
                 }
-            });
+                return source;
+            }));
         } catch (Exception e) {
             if (listener != null) {
                 listener.onFail();

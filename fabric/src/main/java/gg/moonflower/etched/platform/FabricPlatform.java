@@ -1,6 +1,7 @@
 package gg.moonflower.etched.platform;
 
 import io.netty.buffer.Unpooled;
+import gg.moonflower.etched.core.Etched;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -45,8 +46,6 @@ import java.util.function.Supplier;
 
 public class FabricPlatform implements EtchedPlatform {
 
-    private static final String MOD_ID = "etched";
-
     /**
      * Raw bytes written by the server when opening a menu, since fabric menu types need a codec up front.
      */
@@ -70,7 +69,7 @@ public class FabricPlatform implements EtchedPlatform {
         return new Registrar<>() {
             @Override
             public <I extends T> RegistryObject<I> register(String name, Supplier<I> factory) {
-                ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MOD_ID, name);
+                ResourceLocation id = Etched.etchedPath(name);
                 I value = factory.get();
                 Holder.Reference<T> holder = Registry.registerForHolder(registry, id, value);
                 if (value instanceof PoiType poiType) {
@@ -158,25 +157,25 @@ public class FabricPlatform implements EtchedPlatform {
         ServerPlayNetworking.send(player, payload);
     }
 
-    @Override
-    public void sendToPlayersNear(ServerLevel level, double x, double y, double z, double radius, CustomPacketPayload payload) {
-        for (ServerPlayer player : PlayerLookup.around(level, new Vec3(x, y, z), radius)) {
+    private static void sendAll(Iterable<ServerPlayer> players, CustomPacketPayload payload) {
+        for (ServerPlayer player : players) {
             ServerPlayNetworking.send(player, payload);
         }
+    }
+
+    @Override
+    public void sendToPlayersNear(ServerLevel level, double x, double y, double z, double radius, CustomPacketPayload payload) {
+        sendAll(PlayerLookup.around(level, new Vec3(x, y, z), radius), payload);
     }
 
     @Override
     public void sendToPlayersTrackingChunk(ServerLevel level, ChunkPos pos, CustomPacketPayload payload) {
-        for (ServerPlayer player : PlayerLookup.tracking(level, pos)) {
-            ServerPlayNetworking.send(player, payload);
-        }
+        sendAll(PlayerLookup.tracking(level, pos), payload);
     }
 
     @Override
     public void sendToPlayersTrackingEntityAndSelf(Entity entity, CustomPacketPayload payload) {
-        for (ServerPlayer player : PlayerLookup.tracking(entity)) {
-            ServerPlayNetworking.send(player, payload);
-        }
+        sendAll(PlayerLookup.tracking(entity), payload);
         if (entity instanceof ServerPlayer self) {
             ServerPlayNetworking.send(self, payload);
         }

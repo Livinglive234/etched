@@ -44,7 +44,6 @@ public final class EtchedClientSetup {
 
     public static final ResourceLocation BOOMBOX_GUI_MODEL = Etched.etchedPath("item/boombox_gui");
 
-    public static final ItemColor MUSIC_LABEL_DYE_COLOR = (stack, index) -> index == 0 || index == 1 ? DyedItemColor.getOrDefault(stack, -1) : -1;
 
     public static final ItemColor MUSIC_LABEL_COLOR = (stack, index) -> {
         MusicLabelComponent label = stack.getOrDefault(EtchedComponents.MUSIC_LABEL.get(), MusicLabelComponent.DEFAULT);

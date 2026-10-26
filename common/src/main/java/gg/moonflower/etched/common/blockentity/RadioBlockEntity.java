@@ -57,7 +57,7 @@ public class RadioBlockEntity extends BlockEntity implements Clearable, VolumeCo
         boolean oldStopped = this.stopped;
         this.stopped = tag.getBoolean("Stopped");
         this.url = tag.contains("Url", Tag.TAG_STRING) ? tag.getString("Url") : null;
-        this.volume = tag.contains("Volume", Tag.TAG_FLOAT) ? Mth.clamp(tag.getFloat("Volume"), 0.0F, 1.0F) : 1.0F;
+        this.volume = VolumeControlled.read(tag, "Volume");
         if (this.level != null && this.level.isClientSide() && !Objects.equals(oldUrl, this.url)) {
             RadioHistory.confirm(this.url);
         }

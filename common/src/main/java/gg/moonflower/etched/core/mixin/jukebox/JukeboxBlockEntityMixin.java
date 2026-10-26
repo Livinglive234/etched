@@ -85,7 +85,7 @@ public abstract class JukeboxBlockEntityMixin extends BlockEntity implements Vol
     @Inject(method = "loadAdditional", at = @At("TAIL"))
     public void loadVolume(CompoundTag tag, HolderLookup.Provider registries, CallbackInfo ci) {
         float oldVolume = this.etched$volume;
-        this.etched$volume = tag.contains("EtchedVolume", Tag.TAG_FLOAT) ? Mth.clamp(tag.getFloat("EtchedVolume"), 0.0F, 1.0F) : 1.0F;
+        this.etched$volume = VolumeControlled.read(tag, "EtchedVolume");
         if (oldVolume != this.etched$volume && this.level != null && this.level.isClientSide()) {
             SoundTracker.onJukeboxVolumeChanged(this.level, this.getBlockPos(), (JukeboxBlockEntity) (Object) this, this.etched$volume);
         }

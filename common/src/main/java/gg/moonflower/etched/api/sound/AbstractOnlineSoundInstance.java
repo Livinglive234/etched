@@ -169,7 +169,8 @@ public class AbstractOnlineSoundInstance extends AbstractSoundInstance implement
     public float getVolume() {
         // Minecraft clamps the volume times the category volume to 1, which would hide the gain of loud records.
         // Capping the volume where that clamp starts applies the gain after it instead
-        float volume = this.getCategoryVolume() > 0.0F ? Math.min(this.volume, 1.0F / this.getCategoryVolume()) : this.volume;
+        float category = this.getCategoryVolume();
+        float volume = category > 0.0F ? Math.min(this.volume, 1.0F / category) : this.volume;
         return volume * this.gain * this.getDistanceFade();
     }
 

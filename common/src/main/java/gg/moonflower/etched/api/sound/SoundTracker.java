@@ -105,10 +105,7 @@ public class SoundTracker {
         if (instance == null) {
             SoundInstance old = ENTITY_PLAYING_SOUNDS.remove(entity);
             if (old != null) {
-                if (old instanceof StopListeningSound) {
-                    ((StopListeningSound) old).stopListening();
-                }
-                soundManager.stop(old);
+                stop(old);
             }
         } else {
             ENTITY_PLAYING_SOUNDS.put(entity, instance);
@@ -150,8 +147,7 @@ public class SoundTracker {
 
                     @Override
                     public void onFail() {
-                        Minecraft.getInstance().gui.setOverlayMessage(Component.translatable("record." + Etched.MOD_ID + ".downloadFail", title), true);
-                        FAILED_URLS.add(url);
+                        downloadFailed(url, title);
                     }
                 }, stream ? AudioSource.AudioFileType.STREAM : AudioSource.AudioFileType.FILE);
     }
@@ -186,8 +182,7 @@ public class SoundTracker {
 
             @Override
             public void onFail() {
-                Minecraft.getInstance().gui.setOverlayMessage(Component.translatable("record." + Etched.MOD_ID + ".downloadFail", title), true);
-                FAILED_URLS.add(url);
+                downloadFailed(url, title);
             }
         }, type);
     }
@@ -252,8 +247,7 @@ public class SoundTracker {
                         if (retry != null && retry.getAsBoolean()) {
                             return;
                         }
-                        Minecraft.getInstance().gui.setOverlayMessage(Component.translatable("record." + Etched.MOD_ID + ".downloadFail", title), true);
-                        FAILED_URLS.add(url);
+                        downloadFailed(url, title);
                     }
                 }, type);
         if (level.getBlockEntity(pos) instanceof VolumeControlled controlled) {
@@ -269,10 +263,7 @@ public class SoundTracker {
      * @param volume The volume from 0 to 1
      */
     public static void applyVolume(@Nullable SoundInstance sound, float volume) {
-        while (sound instanceof WrappedSoundInstance wrapped) {
-            sound = wrapped.getParent();
-        }
-        if (sound instanceof AbstractOnlineSoundInstance online) {
+        if (unwrap(sound) instanceof AbstractOnlineSoundInstance online) {
             applyVolume(online, volume);
         }
     }
@@ -292,11 +283,7 @@ public class SoundTracker {
      * @param volume The new volume from 0 to 1
      */
     public static void onJukeboxVolumeChanged(net.minecraft.world.level.Level level, BlockPos pos, net.minecraft.world.level.block.entity.JukeboxBlockEntity jukebox, float volume) {
-        SoundInstance sound = ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).getPlayingJukeboxSongs().get(pos);
-        while (sound instanceof WrappedSoundInstance wrapped) {
-            sound = wrapped.getParent();
-        }
-
+        SoundInstance sound = unwrap(((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).getPlayingJukeboxSongs().get(pos));
         if (sound instanceof AbstractOnlineSoundInstance) {
             setBlockVolume(pos, volume);
         } else if (sound != null) {
@@ -311,13 +298,7 @@ public class SoundTracker {
      * @param volume The new volume from 0 to 1
      */
     public static void setBlockVolume(BlockPos pos, float volume) {
-        SoundInstance sound = ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).getPlayingJukeboxSongs().get(pos);
-        while (sound instanceof WrappedSoundInstance wrapped) {
-            sound = wrapped.getParent();
-        }
-        if (sound instanceof AbstractOnlineSoundInstance online) {
-            applyVolume(online, volume);
-        }
+        applyVolume(((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).getPlayingJukeboxSongs().get(pos), volume);
     }
 
     /**
@@ -394,19 +375,6 @@ public class SoundTracker {
      * @param attenuationDistance The attenuation distance of the sound
      * @param loop                Whether to loop
      */
-    public static void playEntityRecord(ItemStack record, int entityId, int track, int attenuationDistance, boolean loop) {
-        playEntityRecord(record, entityId, track, attenuationDistance, loop, null);
-    }
-
-    /**
-     * Plays a record stack for an entity.
-     *
-     * @param record              The record to play
-     * @param entityId            The id of the entity to play the record at
-     * @param track               The track to play
-     * @param attenuationDistance The attenuation distance of the sound
-     * @param loop                Whether to loop
-     */
     public static void playEntityRecord(ItemStack record, int entityId, int track, int attenuationDistance, boolean loop, @Nullable UUID storageId) {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) {
@@ -428,10 +396,7 @@ public class SoundTracker {
 
         SoundInstance entitySound = ENTITY_PLAYING_SOUNDS.remove(entity.getId());
         if (entitySound != null) {
-            if (entitySound instanceof StopListeningSound) {
-                ((StopListeningSound) entitySound).stopListening();
-            }
-            Minecraft.getInstance().getSoundManager().stop(entitySound);
+            stop(entitySound);
         }
 
         entitySound = StopListeningSound.create(sound.get(), () -> Minecraft.getInstance().tell(() -> {
@@ -446,10 +411,6 @@ public class SoundTracker {
         Minecraft.getInstance().getSoundManager().play(entitySound);
     }
 
-    public static void playEntityRecord(ItemStack record, int entityId, int track, boolean loop) {
-        SoundTracker.playEntityRecord(record, entityId, track, 16, loop);
-    }
-
     /**
      * Plays a record stack for an entity with a boombox.
      *
@@ -459,7 +420,7 @@ public class SoundTracker {
     public static void playBoombox(int entityId, ItemStack record) {
         setEntitySound(entityId, null);
         if (!record.isEmpty()) {
-            playEntityRecord(record, entityId, 0, 8, true);
+            playEntityRecord(record, entityId, 0, 8, true, null);
         }
     }
 
@@ -505,19 +466,40 @@ public class SoundTracker {
         }
     }
 
+    /**
+     * Stops a sound the way it wants to be stopped, so it does not start the next track.
+     */
+    private static void stop(SoundInstance sound) {
+        if (sound instanceof StopListeningSound listening) {
+            listening.stopListening();
+        }
+        Minecraft.getInstance().getSoundManager().stop(sound);
+    }
+
+    private static void stopBlockRecord(CommonLevelAccessor level, BlockPos pos) {
+        SoundInstance sound = ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).getPlayingJukeboxSongs().remove(pos);
+        if (sound != null) {
+            stop(sound);
+            setRecordPlayingNearby(level, pos, false);
+        }
+    }
+
+    private static void downloadFailed(String url, Component title) {
+        downloadFailed(url, title);
+    }
+
+    private static @Nullable SoundInstance unwrap(@Nullable SoundInstance sound) {
+        while (sound instanceof WrappedSoundInstance wrapped) {
+            sound = wrapped.getParent();
+        }
+        return sound;
+    }
+
     private static void playRadio(@Nullable String url, BlockState state, CommonLevelAccessor level, BlockPos pos, boolean reconnect) {
         SoundManager soundManager = Minecraft.getInstance().getSoundManager();
         Map<BlockPos, SoundInstance> playingRecords = ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).getPlayingJukeboxSongs();
 
-        SoundInstance soundInstance = playingRecords.get(pos);
-        if (soundInstance != null) {
-            if (soundInstance instanceof StopListeningSound) {
-                ((StopListeningSound) soundInstance).stopListening();
-            }
-            soundManager.stop(soundInstance);
-            playingRecords.remove(pos);
-            setRecordPlayingNearby(level, pos, false);
-        }
+        stopBlockRecord(level, pos);
 
         if (FAILED_URLS.contains(url) || level.getBlockEntity(pos) instanceof RadioBlockEntity stoppedRadio && stoppedRadio.isStopped()) {
             return;
@@ -551,15 +533,7 @@ public class SoundTracker {
             return;
         }
 
-        SoundInstance soundInstance = playingRecords.get(pos);
-        if (soundInstance != null) {
-            if (soundInstance instanceof StopListeningSound) {
-                ((StopListeningSound) soundInstance).stopListening();
-            }
-            soundManager.stop(soundInstance);
-            playingRecords.remove(pos);
-            setRecordPlayingNearby(level, pos, false);
-        }
+        stopBlockRecord(level, pos);
 
         if (state.getValue(AlbumJukeboxBlock.POWERED)) {
             jukebox.stopPlaying();

@@ -26,6 +26,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.JukeboxSong;
 import net.minecraft.world.level.CommonLevelAccessor;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 import java.net.Proxy;
 import java.util.List;
@@ -47,95 +48,17 @@ public final class PlayableRecordClient {
         return player == null || player.distanceToSqr(x, y, z) <= 4096.0;
     }
 
-    public static Optional<SoundInstance> createEntitySound(ItemStack stack, Entity entity, int track) {
-        return createEntitySound(stack, entity, track, 16);
+    /**
+     * Makes the sound for one track of a record. The tracks are counted vanilla song first, then the tracks etched on the record, then the records inside an album cover.
+     */
+    private interface TrackSounds {
+
+        @Nullable SoundInstance song(JukeboxSong song);
+
+        @Nullable SoundInstance track(TrackData track);
     }
 
-    public static Optional<SoundInstance> createEntitySound(ItemStack stack, Entity entity, int track, int attenuationDistance) {
-        if (track < 0) {
-            return Optional.empty();
-        }
-
-        Optional<Holder<JukeboxSong>> optional = JukeboxSong.fromStack(entity.registryAccess(), stack);
-        if (optional.isPresent()) {
-            if (track == 0) {
-                JukeboxSong song = optional.get().value();
-                if (entity.level().getBlockState(entity.blockPosition().above()).isAir() && canShowMessage(entity.getX(), entity.getY(), entity.getZ())) {
-                    Minecraft.getInstance().gui.setNowPlaying(song.description());
-                }
-                return Optional.of(new EntityRecordSoundInstance(song.soundEvent().value(), entity));
-            }
-            track--;
-        }
-
-        MusicTrackComponent music = stack.get(EtchedComponents.MUSIC.get());
-        if (music != null) {
-            List<TrackData> tracks = music.tracks();
-            if (track < tracks.size()) {
-                TrackData trackData = tracks.get(track);
-                return Optional.ofNullable(SoundTracker.getEtchedRecord(trackData.url(), trackData.getDisplayName(), entity, attenuationDistance, false));
-            }
-            track -= tracks.size();
-        }
-
-        AlbumCoverComponent albumCover = stack.get(EtchedComponents.ALBUM_COVER.get());
-        if (albumCover != null) {
-            for (ItemStack record : albumCover.getItems()) {
-                Optional<SoundInstance> entitySound = createEntitySound(record, entity, track, attenuationDistance);
-                if (entitySound.isPresent()) {
-                    return entitySound;
-                }
-                track -= PlayableRecord.getTrackCount(entity.registryAccess(), record);
-            }
-        }
-
-        return Optional.empty();
-    }
-
-    public static Optional<SoundInstance> createBlockSound(ItemStack stack, CommonLevelAccessor level, BlockPos pos, int track) {
-        return createBlockSound(stack, level, pos, track, 16);
-    }
-
-    public static Optional<SoundInstance> createBlockSound(ItemStack stack, CommonLevelAccessor level, BlockPos pos, int track, int attenuationDistance) {
-        if (track < 0) {
-            return Optional.empty();
-        }
-
-        Optional<Holder<JukeboxSong>> optional = JukeboxSong.fromStack(level.registryAccess(), stack);
-        if (optional.isPresent()) {
-            if (track == 0) {
-                JukeboxSong song = optional.get().value();
-                return Optional.ofNullable(SoundTracker.getEtchedRecord(song.soundEvent().value().getLocation().toString(), song.description(), level, pos, attenuationDistance, AudioSource.AudioFileType.FILE));
-            }
-            track--;
-        }
-
-        MusicTrackComponent music = stack.get(EtchedComponents.MUSIC.get());
-        if (music != null) {
-            List<TrackData> tracks = music.tracks();
-            if (track < tracks.size()) {
-                TrackData trackData = tracks.get(track);
-                String url = trackData.url();
-                return Optional.ofNullable(SoundTracker.getEtchedRecord(url, trackData.getDisplayName(), level, pos, attenuationDistance, AudioSource.AudioFileType.FILE));
-            }
-            track -= tracks.size();
-        }
-
-        AlbumCoverComponent albumCover = stack.get(EtchedComponents.ALBUM_COVER.get());
-        if (albumCover != null) {
-            for (ItemStack record : albumCover.getItems()) {
-                Optional<SoundInstance> entitySound = createBlockSound(record, level, pos, track, attenuationDistance);
-                if (entitySound.isPresent()) {
-                    return entitySound;
-                }
-                track -= PlayableRecord.getTrackCount(level.registryAccess(), record);
-            }
-        }
-
-        return Optional.empty();
-    }
-
-    public static Optional<SoundInstance> createMovingSound(ItemStack stack, HolderLookup.Provider registries, Supplier<Vec3> position, int track, int attenuationDistance) {
+    private static Optional<SoundInstance> createSound(ItemStack stack, HolderLookup.Provider registries, int track, TrackSounds sounds) {
         if (track < 0) {
             return Optional.empty();
         }
@@ -143,8 +66,7 @@ public final class PlayableRecordClient {
         Optional<Holder<JukeboxSong>> optional = JukeboxSong.fromStack(registries, stack);
         if (optional.isPresent()) {
             if (track == 0) {
-                JukeboxSong song = optional.get().value();
-                return Optional.ofNullable(SoundTracker.getMovingRecord(song.soundEvent().value().getLocation().toString(), song.description(), position, attenuationDistance, AudioSource.AudioFileType.FILE));
+                return Optional.ofNullable(sounds.song(optional.get().value()));
             }
             track--;
         }
@@ -153,8 +75,7 @@ public final class PlayableRecordClient {
         if (music != null) {
             List<TrackData> tracks = music.tracks();
             if (track < tracks.size()) {
-                TrackData trackData = tracks.get(track);
-                return Optional.ofNullable(SoundTracker.getMovingRecord(trackData.url(), trackData.getDisplayName(), position, attenuationDistance, AudioSource.AudioFileType.FILE));
+                return Optional.ofNullable(sounds.track(tracks.get(track)));
             }
             track -= tracks.size();
         }
@@ -162,7 +83,7 @@ public final class PlayableRecordClient {
         AlbumCoverComponent albumCover = stack.get(EtchedComponents.ALBUM_COVER.get());
         if (albumCover != null) {
             for (ItemStack record : albumCover.getItems()) {
-                Optional<SoundInstance> sound = createMovingSound(record, registries, position, track, attenuationDistance);
+                Optional<SoundInstance> sound = createSound(record, registries, track, sounds);
                 if (sound.isPresent()) {
                     return sound;
                 }
@@ -171,6 +92,51 @@ public final class PlayableRecordClient {
         }
 
         return Optional.empty();
+    }
+
+    public static Optional<SoundInstance> createEntitySound(ItemStack stack, Entity entity, int track, int attenuationDistance) {
+        return createSound(stack, entity.registryAccess(), track, new TrackSounds() {
+            @Override
+            public SoundInstance song(JukeboxSong song) {
+                if (entity.level().getBlockState(entity.blockPosition().above()).isAir() && canShowMessage(entity.getX(), entity.getY(), entity.getZ())) {
+                    Minecraft.getInstance().gui.setNowPlaying(song.description());
+                }
+                return new EntityRecordSoundInstance(song.soundEvent().value(), entity);
+            }
+
+            @Override
+            public SoundInstance track(TrackData track) {
+                return SoundTracker.getEtchedRecord(track.url(), track.getDisplayName(), entity, attenuationDistance, false);
+            }
+        });
+    }
+
+    public static Optional<SoundInstance> createBlockSound(ItemStack stack, CommonLevelAccessor level, BlockPos pos, int track, int attenuationDistance) {
+        return createSound(stack, level.registryAccess(), track, new TrackSounds() {
+            @Override
+            public SoundInstance song(JukeboxSong song) {
+                return SoundTracker.getEtchedRecord(song.soundEvent().value().getLocation().toString(), song.description(), level, pos, attenuationDistance, AudioSource.AudioFileType.FILE);
+            }
+
+            @Override
+            public SoundInstance track(TrackData track) {
+                return SoundTracker.getEtchedRecord(track.url(), track.getDisplayName(), level, pos, attenuationDistance, AudioSource.AudioFileType.FILE);
+            }
+        });
+    }
+
+    public static Optional<SoundInstance> createMovingSound(ItemStack stack, HolderLookup.Provider registries, Supplier<Vec3> position, int track, int attenuationDistance) {
+        return createSound(stack, registries, track, new TrackSounds() {
+            @Override
+            public SoundInstance song(JukeboxSong song) {
+                return SoundTracker.getMovingRecord(song.soundEvent().value().getLocation().toString(), song.description(), position, attenuationDistance, AudioSource.AudioFileType.FILE);
+            }
+
+            @Override
+            public SoundInstance track(TrackData track) {
+                return SoundTracker.getMovingRecord(track.url(), track.getDisplayName(), position, attenuationDistance, AudioSource.AudioFileType.FILE);
+            }
+        });
     }
 
     public static CompletableFuture<AlbumCover> getAlbumCover(ItemStack stack, Proxy proxy, ResourceManager resourceManager) {

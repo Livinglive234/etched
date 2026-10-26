@@ -55,19 +55,4 @@ public final class ShareLinks {
         }
         return url;
     }
-
-    /**
-     * Checks to see if the URL is a share link that downloads the file with a GET request only.
-     *
-     * @param url The URL to check
-     * @return Whether HEAD requests should be avoided for the URL
-     */
-    public static boolean requiresGet(String url) {
-        try {
-            String host = new URI(url).getHost();
-            return "www.dropbox.com".equals(host) || "drive.usercontent.google.com".equals(host);
-        } catch (URISyntaxException e) {
-            return false;
-        }
-    }
 }

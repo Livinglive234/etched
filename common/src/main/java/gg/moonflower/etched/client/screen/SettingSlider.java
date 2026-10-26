@@ -1,6 +1,8 @@
 package gg.moonflower.etched.client.screen;
 
 import net.minecraft.client.gui.components.AbstractSliderButton;
+import gg.moonflower.etched.common.network.play.ServerboundSoundSettingsPacket;
+import gg.moonflower.etched.platform.EtchedPlatform;
 import net.minecraft.network.chat.Component;
 
 import java.util.function.IntConsumer;
@@ -30,6 +32,16 @@ public class SettingSlider extends AbstractSliderButton {
         this.onChange = onChange;
         this.lastValue = this.getValue();
         this.updateMessage();
+    }
+
+    /**
+     * Creates the slider that sets the volume of the music player the player has open.
+     *
+     * @param translationKey The message, given the volume in percent
+     * @param volume         The volume from 0 to 1 the slider starts at
+     */
+    public static SettingSlider volume(int x, int y, int width, int height, String translationKey, float volume) {
+        return new SettingSlider(x, y, width, height, translationKey, 0, 100, Math.round(volume * 100.0F), value -> EtchedPlatform.get().sendToServer(new ServerboundSoundSettingsPacket(value / 100.0F)));
     }
 
     public int getValue() {

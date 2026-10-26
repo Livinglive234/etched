@@ -16,6 +16,7 @@ import gg.moonflower.etched.common.network.play.SetUrlPacket;
 import gg.moonflower.etched.core.registry.EtchedComponents;
 import gg.moonflower.etched.core.registry.EtchedItems;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -36,7 +37,7 @@ public class EtchedServerPlayPacketHandler {
 
     public static void handleSoundSettings(ServerboundSoundSettingsPacket pkt, Player player) {
         if (player.containerMenu instanceof SoundSettingsMenu menu && Float.isFinite(pkt.volume())) {
-            menu.setVolume(Math.max(0.0F, Math.min(1.0F, pkt.volume())));
+            menu.setVolume(Mth.clamp(pkt.volume(), 0.0F, 1.0F));
         }
     }
 

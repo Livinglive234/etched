@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.concurrent.Executor;
 
 /**
@@ -38,6 +39,7 @@ final class RadioHistoryStore {
     static final int MAX_URL_LENGTH = 2048;
     static final int MAX_CONTEXTS = 64;
     private static final int SCHEMA_VERSION = 1;
+    private static final Pattern CONTEXT_KEY = Pattern.compile("(?:mp|sp):[0-9a-f]{64}");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private final Path file;
@@ -72,7 +74,7 @@ final class RadioHistoryStore {
     }
 
     synchronized boolean record(String contextKey, String url) {
-        if (!contextKey.matches("(?:mp|sp):[0-9a-f]{64}") || !isValidUrl(url)) {
+        if (!CONTEXT_KEY.matcher(contextKey).matches() || !isValidUrl(url)) {
             return false;
         }
 
@@ -112,15 +114,15 @@ final class RadioHistoryStore {
             return false;
         }
 
-        try (InputStream stream = BoundedStreams.limit(Files.newInputStream(path), BoundedStreams.MAX_PLAYLIST_BYTES)) {
-            JsonObject json = JsonParser.parseString(new String(stream.readAllBytes(), StandardCharsets.UTF_8)).getAsJsonObject();
+        try (InputStream stream = Files.newInputStream(path)) {
+            JsonObject json = JsonParser.parseString(BoundedStreams.readString(stream, BoundedStreams.MAX_PLAYLIST_BYTES)).getAsJsonObject();
             if (json.get("version").getAsInt() > SCHEMA_VERSION) {
                 return false;
             }
 
             Map<String, Context> read = new LinkedHashMap<>();
             for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject("contexts").entrySet()) {
-                if (!entry.getKey().matches("(?:mp|sp):[0-9a-f]{64}") || read.size() >= MAX_CONTEXTS) {
+                if (!CONTEXT_KEY.matcher(entry.getKey()).matches() || read.size() >= MAX_CONTEXTS) {
                     continue;
                 }
 

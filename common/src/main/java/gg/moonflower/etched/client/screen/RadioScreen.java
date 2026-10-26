@@ -18,7 +18,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -31,7 +30,7 @@ import java.util.List;
 /**
  * @author Ocelot
  */
-public class RadioScreen extends AbstractContainerScreen<RadioMenu> implements UrlMenu {
+public class RadioScreen extends VolumeContainerScreen<RadioMenu> implements UrlMenu {
 
     private static final ResourceLocation TEXTURE = Etched.etchedPath("textures/gui/radio.png");
 
@@ -62,8 +61,8 @@ public class RadioScreen extends AbstractContainerScreen<RadioMenu> implements U
         this.url.setBordered(false);
         this.setFocused(this.url);
         this.addRenderableWidget(this.url);
-        this.addRenderableWidget(new SettingSlider(this.leftPos + 8, this.topPos + 36, 160, 14, "screen." + Etched.MOD_ID + ".volume", 0, 100, Math.round(this.menu.getInitialVolume() * 100.0F), value -> EtchedPlatform.get().sendToServer(new ServerboundSoundSettingsPacket(value / 100.0F))));
-        String nameText = this.name != null ? this.name.getValue() : StationNames.get(urlText) != null ? StationNames.get(urlText) : "";
+        this.addRenderableWidget(SettingSlider.volume(this.leftPos + 8, this.topPos + 36, 160, 14, "screen." + Etched.MOD_ID + ".volume", this.menu.getInitialVolume()));
+        String nameText = this.name != null ? this.name.getValue() : StationNames.getOrEmpty(urlText);
         this.name = new EditBox(this.font, this.leftPos + 8, this.topPos + 54, 160, 14, this.name, Component.translatable("screen." + Etched.MOD_ID + ".radio.name"));
         this.name.setMaxLength(StationNames.MAX_NAME_LENGTH);
         this.name.setHint(Component.translatable("screen." + Etched.MOD_ID + ".radio.name").withStyle(ChatFormatting.DARK_GRAY));
@@ -71,7 +70,7 @@ public class RadioScreen extends AbstractContainerScreen<RadioMenu> implements U
         this.addRenderableWidget(this.name);
         this.history = this.addRenderableWidget(new RadioHistoryList(this.font, this.leftPos + 8, this.topPos + 68 + NAME_HEIGHT, 160, RadioHistory.entries(), HISTORY_TITLE, Component.translatable("screen." + Etched.MOD_ID + ".radio.history.empty"), StationNames::label, station -> {
             this.url.setValue(station);
-            this.name.setValue(StationNames.get(station) != null ? StationNames.get(station) : "");
+            this.name.setValue(StationNames.getOrEmpty(station));
             this.setFocused(this.url);
         }));
         this.addRenderableWidget(Button.builder(Component.translatable("screen." + Etched.MOD_ID + ".radio.history.clear"), button -> {
@@ -138,19 +137,9 @@ public class RadioScreen extends AbstractContainerScreen<RadioMenu> implements U
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        // Container screens only drag items, so the slider has to be passed drags itself
-        if (button == 0 && this.isDragging() && this.getFocused() instanceof SettingSlider slider) {
-            return slider.mouseDragged(mouseX, mouseY, button, dragX, dragY);
-        }
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
-    }
-
-    @Override
     public void setUrl(String url) {
         this.url.setValue(url);
-        String known = StationNames.get(url);
-        this.name.setValue(known != null ? known : "");
+        this.name.setValue(StationNames.getOrEmpty(url));
     }
 
     @Override

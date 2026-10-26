@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
@@ -59,7 +60,7 @@ public class RadioMovingInteraction extends MovingInteractionBehaviour {
             @Override
             public void setVolume(float newVolume) {
                 CompoundTag change = new CompoundTag();
-                change.putFloat("Volume", Math.max(0.0F, Math.min(1.0F, newVolume)));
+                change.putFloat("Volume", Mth.clamp(newVolume, 0.0F, 1.0F));
                 CreateCompat.updateBlockData(contraptionEntity, localPos, change);
             }
         };

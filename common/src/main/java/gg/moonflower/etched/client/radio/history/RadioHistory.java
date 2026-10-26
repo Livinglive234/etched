@@ -1,5 +1,6 @@
 package gg.moonflower.etched.client.radio.history;
 
+import com.google.common.hash.Hashing;
 import gg.moonflower.etched.core.Etched;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -10,9 +11,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -25,7 +23,6 @@ import java.util.Optional;
  */
 public final class RadioHistory {
 
-    public static final int MAX_STATIONS = RadioHistoryStore.MAX_STATIONS;
     private static final long PENDING_MILLIS = 15000L;
     private static final Object LOCK = new Object();
     private static RadioHistoryStore store;
@@ -107,10 +104,6 @@ public final class RadioHistory {
     }
 
     private static String hash(String value) {
-        try {
-            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8)));
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 is unavailable", e);
-        }
+        return Hashing.sha256().hashString(value, StandardCharsets.UTF_8).toString();
     }
 }

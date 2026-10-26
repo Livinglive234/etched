@@ -7,7 +7,6 @@ import gg.moonflower.etched.common.network.play.ServerboundSoundSettingsPacket;
 import gg.moonflower.etched.core.Etched;
 import gg.moonflower.etched.platform.EtchedPlatform;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -15,7 +14,7 @@ import net.minecraft.world.entity.player.Inventory;
 /**
  * The screen to set the volume of a vanilla jukebox.
  */
-public class JukeboxSettingsScreen extends AbstractContainerScreen<JukeboxSettingsMenu> {
+public class JukeboxSettingsScreen extends VolumeContainerScreen<JukeboxSettingsMenu> {
 
     private static final ResourceLocation TEXTURE = Etched.etchedPath("textures/gui/radio.png");
 
@@ -27,7 +26,7 @@ public class JukeboxSettingsScreen extends AbstractContainerScreen<JukeboxSettin
     @Override
     protected void init() {
         super.init();
-        this.addRenderableWidget(new SettingSlider(this.leftPos + 8, this.topPos + 18, 160, 14, "screen." + Etched.MOD_ID + ".volume", 0, 100, Math.round(this.menu.getInitialVolume() * 100.0F), value -> EtchedPlatform.get().sendToServer(new ServerboundSoundSettingsPacket(value / 100.0F))));
+        this.addRenderableWidget(SettingSlider.volume(this.leftPos + 8, this.topPos + 18, 160, 14, "screen." + Etched.MOD_ID + ".volume", this.menu.getInitialVolume()));
     }
 
     @Override
@@ -38,15 +37,6 @@ public class JukeboxSettingsScreen extends AbstractContainerScreen<JukeboxSettin
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
-    }
-
-    @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        // Container screens only drag items, so the slider has to be passed drags itself
-        if (button == 0 && this.isDragging() && this.getFocused() instanceof SettingSlider slider) {
-            return slider.mouseDragged(mouseX, mouseY, button, dragX, dragY);
-        }
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
 
     @Override

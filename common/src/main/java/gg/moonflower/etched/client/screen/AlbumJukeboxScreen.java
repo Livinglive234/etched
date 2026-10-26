@@ -16,7 +16,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -29,7 +28,7 @@ import java.util.List;
 /**
  * @author Ocelot
  */
-public class AlbumJukeboxScreen extends AbstractContainerScreen<AlbumJukeboxMenu> {
+public class AlbumJukeboxScreen extends VolumeContainerScreen<AlbumJukeboxMenu> {
 
     private static final ResourceLocation CONTAINER_LOCATION = Etched.etchedPath("textures/gui/container/album_jukebox.png");
     private static final Component NOW_PLAYING = Component.translatable("screen." + Etched.MOD_ID + ".album_jukebox.now_playing").withStyle(ChatFormatting.YELLOW);
@@ -84,17 +83,8 @@ public class AlbumJukeboxScreen extends AbstractContainerScreen<AlbumJukeboxMenu
                     .build());
         }
         float volume = this.menu.getInitialVolume();
-        this.addRenderableWidget(new SettingSlider(this.leftPos + 7, this.topPos + 17, 52, 14, "screen." + Etched.MOD_ID + ".volume.short", 0, 100, Math.round(volume * 100.0F), value -> EtchedPlatform.get().sendToServer(new ServerboundSoundSettingsPacket(value / 100.0F))));
+        this.addRenderableWidget(SettingSlider.volume(this.leftPos + 7, this.topPos + 17, 52, 14, "screen." + Etched.MOD_ID + ".volume.short", volume));
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
-    }
-
-    @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        // Container screens only drag items, so the slider has to be passed drags itself
-        if (button == 0 && this.isDragging() && this.getFocused() instanceof SettingSlider slider) {
-            return slider.mouseDragged(mouseX, mouseY, button, dragX, dragY);
-        }
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
 
     @Override

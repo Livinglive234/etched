@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Names the player gave to radio stations, kept only on the client and used to show the history list.
@@ -24,6 +25,7 @@ public final class StationNames {
 
     public static final int MAX_NAME_LENGTH = 40;
     private static final int MAX_NAMES = 200;
+    private static final Pattern CONTROL = Pattern.compile("\\p{Cntrl}");
     private static final Gson GSON = new Gson();
     private static Map<String, String> names;
 
@@ -55,7 +57,7 @@ public final class StationNames {
     }
 
     private static String clean(String name) {
-        String stripped = name.strip().replaceAll("\\p{Cntrl}", " ");
+        String stripped = CONTROL.matcher(name.strip()).replaceAll(" ");
         return stripped.length() > MAX_NAME_LENGTH ? stripped.substring(0, MAX_NAME_LENGTH) : stripped;
     }
 
@@ -66,6 +68,15 @@ public final class StationNames {
     public static synchronized @Nullable String get(String url) {
         String name = names().get(url.strip());
         return name == null || name.isEmpty() ? null : name;
+    }
+
+    /**
+     * @param url A station address
+     * @return The name the player gave the station, or an empty text if it has none
+     */
+    public static String getOrEmpty(String url) {
+        String name = get(url);
+        return name != null ? name : "";
     }
 
     /**

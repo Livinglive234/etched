@@ -5,6 +5,7 @@ import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
 import com.simibubi.create.content.contraptions.behaviour.MovementContext;
 import com.simibubi.create.content.contraptions.Contraption;
 import gg.moonflower.etched.common.block.RadioBlock;
+import gg.moonflower.etched.common.blockentity.VolumeControlled;
 import gg.moonflower.etched.core.Etched;
 import gg.moonflower.etched.core.registry.EtchedBlocks;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -81,7 +82,7 @@ public final class CreateCompat {
      * @return The volume of a mounted radio or jukebox from 0 to 1
      */
     static float getVolume(@Nullable CompoundTag data, String key) {
-        return data != null && data.contains(key, Tag.TAG_FLOAT) ? Mth.clamp(data.getFloat(key), 0.0F, 1.0F) : 1.0F;
+        return VolumeControlled.read(data, key);
     }
 
     /**

@@ -98,7 +98,7 @@ public class AlbumJukeboxBlockEntity extends RandomizableContainerBlockEntity im
         if (!this.tryLoadLootTable(tag)) {
             ContainerHelper.loadAllItems(tag, this.items, registries);
         }
-        this.volume = tag.contains("Volume", Tag.TAG_FLOAT) ? Mth.clamp(tag.getFloat("Volume"), 0.0F, 1.0F) : 1.0F;
+        this.volume = VolumeControlled.read(tag, "Volume");
         if (this.loaded) {
             if (oldItems == null || !ItemStack.listMatches(oldItems, this.items)) {
                 SoundTracker.playAlbum(this, this.getBlockState(), this.level, this.getBlockPos(), false);

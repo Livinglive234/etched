@@ -81,7 +81,6 @@ public class EtchedNeoForgeClient {
     }
 
     private void registerItemColors(RegisterColorHandlersEvent.Item event) {
-        event.register(EtchedClientSetup.MUSIC_LABEL_DYE_COLOR, EtchedItems.MUSIC_LABEL.get());
         event.register(EtchedClientSetup.MUSIC_LABEL_COLOR, EtchedItems.MUSIC_LABEL.get());
         event.register(EtchedClientSetup.BLANK_MUSIC_DISC_COLOR, EtchedItems.BLANK_MUSIC_DISC.get());
         event.register(EtchedClientSetup.ETCHED_MUSIC_DISC_COLOR, EtchedItems.ETCHED_MUSIC_DISC.get());

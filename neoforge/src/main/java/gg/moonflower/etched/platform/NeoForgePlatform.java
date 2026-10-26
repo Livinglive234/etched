@@ -31,7 +31,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.ArrayList;
-import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -39,14 +39,14 @@ import java.util.function.Supplier;
 
 public class NeoForgePlatform implements EtchedPlatform {
 
-    private static final Map<Registry<?>, DeferredRegister<?>> REGISTERS = new IdentityHashMap<>();
-    private static final List<DeferredRegister<?>> ORDERED_REGISTERS = new ArrayList<>();
+    // Registries are compared by identity, and registered in the order they were first used
+    private static final Map<Registry<?>, DeferredRegister<?>> REGISTERS = new LinkedHashMap<>();
 
     /**
      * Registers every created deferred register to the mod event bus.
      */
     public static void registerAll(IEventBus bus) {
-        for (DeferredRegister<?> register : ORDERED_REGISTERS) {
+        for (DeferredRegister<?> register : REGISTERS.values()) {
             register.register(bus);
         }
     }
@@ -54,9 +54,7 @@ public class NeoForgePlatform implements EtchedPlatform {
     @SuppressWarnings("unchecked")
     private static <T> DeferredRegister<T> getRegister(Registry<T> registry) {
         return (DeferredRegister<T>) REGISTERS.computeIfAbsent(registry, key -> {
-            DeferredRegister<T> register = DeferredRegister.create(registry, Etched.MOD_ID);
-            ORDERED_REGISTERS.add(register);
-            return register;
+            return DeferredRegister.create(registry, Etched.MOD_ID);
         });
     }
 

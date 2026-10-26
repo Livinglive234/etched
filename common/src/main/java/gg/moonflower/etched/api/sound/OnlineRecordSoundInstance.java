@@ -48,10 +48,6 @@ public class OnlineRecordSoundInstance extends AbstractOnlineSoundInstance imple
         }
     }
 
-    public OnlineRecordSoundInstance(String url, Entity entity, int attenuationDistance, DownloadProgressListener progressListener, AudioSource.AudioFileType type) {
-        this(url, entity, 4.0F, attenuationDistance, progressListener, type);
-    }
-
     public OnlineRecordSoundInstance(String url, double x, double y, double z, float volume, int attenuationDistance, DownloadProgressListener progressListener, AudioSource.AudioFileType type) {
         this(url, (Entity) null, volume, attenuationDistance, progressListener, type);
         this.x = x;
@@ -68,17 +64,10 @@ public class OnlineRecordSoundInstance extends AbstractOnlineSoundInstance imple
      * Puts the sound where its block really is when something else moves the block, such as a ship.
      */
     private void followAnchor() {
-        if (!SoundPositions.isActive()) {
-            return;
-        }
         Vec3 world = SoundPositions.toWorld(this.anchorX, this.anchorY, this.anchorZ);
         this.x = world != null ? world.x : this.anchorX;
         this.y = world != null ? world.y : this.anchorY;
         this.z = world != null ? world.z : this.anchorZ;
-    }
-
-    public OnlineRecordSoundInstance(String url, double x, double y, double z, int attenuationDistance, DownloadProgressListener progressListener, AudioSource.AudioFileType type) {
-        this(url, x, y, z, 4.0F, attenuationDistance, progressListener, type);
     }
 
     @Override
