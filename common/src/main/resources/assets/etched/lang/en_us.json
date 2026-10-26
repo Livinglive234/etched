@@ -37,6 +37,7 @@
   "screen.etched.music_search.error": "Search failed: %s",
   "screen.etched.now_playing": "Now Playing: %s",
   "screen.etched.radio.internet_radio": "Internet Radio",
+  "screen.etched.radio.name": "Station name (optional)",
   "screen.etched.radio.play": "Play",
   "screen.etched.radio.stop": "Stop",
   "screen.etched.radio.close": "Close",

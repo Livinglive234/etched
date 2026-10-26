@@ -179,6 +179,7 @@ public class MusicSearchScreen extends Screen {
         }
         this.minecraft.setScreen(this.parent);
         this.target.setUrl(entry.result.url());
+        this.target.setStationName(entry.result.title());
     }
 
     @Override

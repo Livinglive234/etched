@@ -5,6 +5,8 @@ import gg.moonflower.etched.client.radio.RadioSession;
 import gg.moonflower.etched.api.sound.StreamTitles;
 import gg.moonflower.etched.common.blockentity.RadioBlockEntity;
 import gg.moonflower.etched.client.radio.history.RadioHistory;
+import gg.moonflower.etched.client.radio.history.StationNames;
+import net.minecraft.ChatFormatting;
 import gg.moonflower.etched.common.network.play.ServerboundSoundSettingsPacket;
 import gg.moonflower.etched.platform.EtchedPlatform;
 import gg.moonflower.etched.common.menu.RadioMenu;
@@ -34,15 +36,17 @@ public class RadioScreen extends AbstractContainerScreen<RadioMenu> implements U
 
     private static final int TEXTURE_HEIGHT = 39;
     private static final int SETTINGS_HEIGHT = 20;
+    private static final int NAME_HEIGHT = 18;
     private static final int HISTORY_HEIGHT = 92;
     private static final Component HISTORY_TITLE = Component.translatable("screen." + Etched.MOD_ID + ".radio.history");
 
     private EditBox url;
+    private EditBox name;
     private RadioHistoryList history;
 
     public RadioScreen(RadioMenu menu, Inventory inventory, Component component) {
         super(menu, inventory, component);
-        this.imageHeight = TEXTURE_HEIGHT + SETTINGS_HEIGHT + HISTORY_HEIGHT;
+        this.imageHeight = TEXTURE_HEIGHT + SETTINGS_HEIGHT + NAME_HEIGHT + HISTORY_HEIGHT;
     }
 
     @Override
@@ -58,19 +62,30 @@ public class RadioScreen extends AbstractContainerScreen<RadioMenu> implements U
         this.setFocused(this.url);
         this.addRenderableWidget(this.url);
         this.addRenderableWidget(new SettingSlider(this.leftPos + 8, this.topPos + 36, 160, 14, "screen." + Etched.MOD_ID + ".volume", 0, 100, Math.round(this.menu.getInitialVolume() * 100.0F), value -> EtchedPlatform.get().sendToServer(new ServerboundSoundSettingsPacket(value / 100.0F))));
-        this.history = this.addRenderableWidget(new RadioHistoryList(this.font, this.leftPos + 8, this.topPos + 68, 160, RadioHistory.entries(), HISTORY_TITLE, Component.translatable("screen." + Etched.MOD_ID + ".radio.history.empty"), station -> {
+        String nameText = this.name != null ? this.name.getValue() : StationNames.get(urlText) != null ? StationNames.get(urlText) : "";
+        this.name = new EditBox(this.font, this.leftPos + 8, this.topPos + 54, 160, 14, this.name, Component.translatable("screen." + Etched.MOD_ID + ".radio.name"));
+        this.name.setMaxLength(StationNames.MAX_NAME_LENGTH);
+        this.name.setHint(Component.translatable("screen." + Etched.MOD_ID + ".radio.name").withStyle(ChatFormatting.DARK_GRAY));
+        this.name.setValue(nameText);
+        this.addRenderableWidget(this.name);
+        this.history = this.addRenderableWidget(new RadioHistoryList(this.font, this.leftPos + 8, this.topPos + 68 + NAME_HEIGHT, 160, RadioHistory.entries(), HISTORY_TITLE, Component.translatable("screen." + Etched.MOD_ID + ".radio.history.empty"), StationNames::label, station -> {
             this.url.setValue(station);
+            this.name.setValue(StationNames.get(station) != null ? StationNames.get(station) : "");
             this.setFocused(this.url);
         }));
         this.addRenderableWidget(Button.builder(Component.translatable("screen." + Etched.MOD_ID + ".radio.history.clear"), button -> {
             RadioHistory.clear();
             this.history.setStations(List.of());
-        }).bounds(this.leftPos + 8, this.topPos + 131, 160, 14).build());
+        }).bounds(this.leftPos + 8, this.topPos + 131 + NAME_HEIGHT, 160, 14).build());
         this.addRenderableWidget(MusicSearchScreen.createButton(this, List.of(MusicSearchScreen.RADIO_BROWSER, MusicSearchScreen.SOUND_CLOUD), this.leftPos + this.imageWidth - 21, this.topPos + 3, 14));
         int buttonWidth = (this.imageWidth - 8) / 3;
         int buttonY = this.topPos + this.imageHeight + 5;
         this.addRenderableWidget(Button.builder(Component.translatable("screen." + Etched.MOD_ID + ".radio.play"), button -> {
             RadioHistory.submitted(this.url.getValue());
+            if (!this.url.getValue().isBlank()) {
+                StationNames.set(this.url.getValue(), this.name.getValue());
+                this.history.setStations(RadioHistory.entries());
+            }
             EtchedPlatform.get().sendToServer(new SetUrlPacket(this.url.getValue()));
             // A station that is already set will not change, so it has to be started here
             if (this.minecraft.level != null && this.minecraft.level.getBlockEntity(this.menu.getPos()) instanceof RadioBlockEntity radio && this.url.getValue().equals(radio.getUrl())) {
@@ -106,15 +121,15 @@ public class RadioScreen extends AbstractContainerScreen<RadioMenu> implements U
     protected void renderBg(GuiGraphics guiGraphics, float f, int mouseX, int mouseY) {
         // Stretch a plain row of the panel to make room for the sound settings
         guiGraphics.blit(TEXTURE, this.leftPos, this.topPos, 0, 0, this.imageWidth, 35);
-        guiGraphics.blit(TEXTURE, this.leftPos, this.topPos + 35, this.imageWidth, SETTINGS_HEIGHT + HISTORY_HEIGHT, 0, 34, this.imageWidth, 1, 256, 256);
-        guiGraphics.blit(TEXTURE, this.leftPos, this.topPos + 35 + SETTINGS_HEIGHT + HISTORY_HEIGHT, 0, 35, this.imageWidth, TEXTURE_HEIGHT - 35);
+        guiGraphics.blit(TEXTURE, this.leftPos, this.topPos + 35, this.imageWidth, SETTINGS_HEIGHT + NAME_HEIGHT + HISTORY_HEIGHT, 0, 34, this.imageWidth, 1, 256, 256);
+        guiGraphics.blit(TEXTURE, this.leftPos, this.topPos + 35 + SETTINGS_HEIGHT + NAME_HEIGHT + HISTORY_HEIGHT, 0, 35, this.imageWidth, TEXTURE_HEIGHT - 35);
         guiGraphics.blit(TEXTURE, this.leftPos + 8, this.topPos + 18, 0, 39, 160, 14);
     }
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
-        guiGraphics.drawString(this.font, HISTORY_TITLE, 8, 58, 4210752, false);
+        guiGraphics.drawString(this.font, HISTORY_TITLE, 8, 58 + NAME_HEIGHT, 4210752, false);
     }
 
     @Override
@@ -134,5 +149,14 @@ public class RadioScreen extends AbstractContainerScreen<RadioMenu> implements U
     @Override
     public void setUrl(String url) {
         this.url.setValue(url);
+        String known = StationNames.get(url);
+        this.name.setValue(known != null ? known : "");
+    }
+
+    @Override
+    public void setStationName(String name) {
+        if (StationNames.get(this.url.getValue()) == null) {
+            this.name.setValue(name);
+        }
     }
 }

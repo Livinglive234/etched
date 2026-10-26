@@ -9,6 +9,7 @@ import net.minecraft.util.Mth;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * A short list of recent radio stations that scrolls. Picking a station only gives it to the screen, it does not start playing.
@@ -21,16 +22,18 @@ final class RadioHistoryList extends AbstractWidget {
 
     private final Font font;
     private final Consumer<String> onSelect;
+    private final Function<String, String> labels;
     private final Component emptyMessage;
     private List<String> stations;
     private int offset;
 
-    RadioHistoryList(Font font, int x, int y, int width, List<String> stations, Component title, Component emptyMessage, Consumer<String> onSelect) {
+    RadioHistoryList(Font font, int x, int y, int width, List<String> stations, Component title, Component emptyMessage, Function<String, String> labels, Consumer<String> onSelect) {
         super(x, y, width, ROWS * ROW_HEIGHT, title);
         this.font = font;
         this.stations = stations;
         this.emptyMessage = emptyMessage;
         this.onSelect = onSelect;
+        this.labels = labels;
     }
 
     void setStations(List<String> stations) {
@@ -75,7 +78,7 @@ final class RadioHistoryList extends AbstractWidget {
                 guiGraphics.fill(this.getX() + 1, top, this.getX() + this.width - (this.hasScrollbar() ? SCROLLBAR_WIDTH : 0) - 1, top + ROW_HEIGHT, 0x40FFFFFF);
             }
 
-            String text = this.stations.get(row);
+            String text = this.labels.apply(this.stations.get(row));
             if (this.font.width(text) > this.textWidth()) {
                 text = this.font.plainSubstrByWidth(text, this.textWidth() - this.font.width("...")) + "...";
             }
