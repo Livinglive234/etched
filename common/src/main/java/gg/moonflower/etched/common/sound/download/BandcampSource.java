@@ -1,5 +1,6 @@
 package gg.moonflower.etched.common.sound.download;
 
+import gg.moonflower.etched.api.util.BoundedStreams;
 import gg.moonflower.etched.api.util.NetworkPolicy;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -62,7 +63,7 @@ public class BandcampSource implements SoundDownloadSource {
 
     private <T> T resolve(String url, @Nullable DownloadProgressListener progressListener, Proxy proxy, SourceRequest<T> function) throws IOException, URISyntaxException, JsonParseException {
         try (InputStream stream = this.get(url, progressListener, proxy)) {
-            Matcher dataMatcher = DATA_PATTERN.matcher(IOUtils.toString(stream, StandardCharsets.UTF_8));
+            Matcher dataMatcher = DATA_PATTERN.matcher(BoundedStreams.readString(stream, BoundedStreams.MAX_PAGE_BYTES));
             String raw = dataMatcher.find() ? dataMatcher.group(1) : null;
             if (raw == null) {
                 throw new IOException("Failed to find properties");

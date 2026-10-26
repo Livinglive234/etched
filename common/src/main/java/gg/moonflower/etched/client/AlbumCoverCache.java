@@ -1,5 +1,6 @@
 package gg.moonflower.etched.client;
 
+import gg.moonflower.etched.api.util.BoundedStreams;
 import gg.moonflower.etched.api.util.NetworkPolicy;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -194,7 +195,7 @@ public final class AlbumCoverCache {
                 if (!Files.exists(CACHE_FOLDER)) {
                     Files.createDirectory(CACHE_FOLDER);
                 }
-                Files.copy(fetchedStream, imageFile, StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(BoundedStreams.limit(fetchedStream, BoundedStreams.MAX_IMAGE_BYTES), imageFile, StandardCopyOption.REPLACE_EXISTING);
             }
             synchronized (METADATA_LOCK) {
                 CACHE_METADATA.addProperty(key, System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));

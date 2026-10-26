@@ -1,5 +1,6 @@
 package gg.moonflower.etched.common.sound.download;
 
+import gg.moonflower.etched.api.util.BoundedStreams;
 import gg.moonflower.etched.api.util.NetworkPolicy;
 import com.google.gson.*;
 import gg.moonflower.etched.api.record.TrackData;
@@ -69,7 +70,7 @@ public class SoundCloudSource implements SoundDownloadSource {
     }
 
     private <T> T resolve(String url, @Nullable DownloadProgressListener progressListener, Proxy proxy, SourceRequest<T> function) throws IOException, URISyntaxException, JsonParseException {
-        try (InputStreamReader reader = new InputStreamReader(this.get("https://api-v2.soundcloud.com/resolve?url=" + URLEncoder.encode(url, StandardCharsets.UTF_8), progressListener, proxy, 0, true))) {
+        try (InputStreamReader reader = new InputStreamReader(BoundedStreams.limit(this.get("https://api-v2.soundcloud.com/resolve?url=" + URLEncoder.encode(url, StandardCharsets.UTF_8), progressListener, proxy, 0, true), BoundedStreams.MAX_JSON_BYTES))) {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
 
             String kind = GsonHelper.getAsString(json, "kind");
@@ -114,7 +115,7 @@ public class SoundCloudSource implements SoundDownloadSource {
                     continue;
                 }
 
-                try (InputStreamReader reader = new InputStreamReader(this.get(dataUrl, null, proxy, 0, true))) {
+                try (InputStreamReader reader = new InputStreamReader(BoundedStreams.limit(this.get(dataUrl, null, proxy, 0, true), BoundedStreams.MAX_JSON_BYTES))) {
                     JsonObject urlJson = JsonParser.parseReader(reader).getAsJsonObject();
                     if (format.isHls()) {
                         try (InputStream stream = this.get(GsonHelper.getAsString(urlJson, "url"), null, proxy, 0, false)) {

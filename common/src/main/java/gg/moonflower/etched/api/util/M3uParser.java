@@ -31,7 +31,7 @@ public final class M3uParser {
      * @throws IOException If any error occurs reading the data
      */
     public static List<URL> parse(InputStream stream) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(BoundedStreams.limit(stream, BoundedStreams.MAX_PLAYLIST_BYTES)));
 
         List<String> lines = new LinkedList<>();
         while (true) {
@@ -40,6 +40,9 @@ public final class M3uParser {
                 break;
             }
             if (!line.isBlank()) {
+                if (lines.size() >= BoundedStreams.MAX_PLAYLIST_ENTRIES * 2) { // Entries can have a line of info before them
+                    throw new IOException("The playlist has too many lines");
+                }
                 lines.add(line.trim());
             }
         }

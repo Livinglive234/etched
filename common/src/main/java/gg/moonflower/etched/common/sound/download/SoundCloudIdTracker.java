@@ -1,5 +1,6 @@
 package gg.moonflower.etched.common.sound.download;
 
+import gg.moonflower.etched.api.util.BoundedStreams;
 import gg.moonflower.etched.api.util.NetworkPolicy;
 import gg.moonflower.etched.api.sound.download.SoundDownloadSource;
 import net.minecraft.Util;
@@ -53,7 +54,7 @@ public final class SoundCloudIdTracker {
                 throw new IOException(httpURLConnection.getResponseCode() + " " + httpURLConnection.getResponseMessage());
             }
 
-            String result = getLastMatchWithinLimit(PAGE_APP_SCRIPT_PATTERN.matcher(IOUtils.toString(httpURLConnection.getInputStream(), StandardCharsets.UTF_8)));
+            String result = getLastMatchWithinLimit(PAGE_APP_SCRIPT_PATTERN.matcher(BoundedStreams.readString(httpURLConnection.getInputStream(), BoundedStreams.MAX_PAGE_BYTES)));
             if (result == null) {
                 throw new IllegalStateException("Could not find application script from main page.");
             }
@@ -74,7 +75,7 @@ public final class SoundCloudIdTracker {
                 throw new IOException(httpURLConnection.getResponseCode() + " " + httpURLConnection.getResponseMessage());
             }
 
-            Matcher clientIdMatcher = APP_SCRIPT_CLIENT_ID_PATTERN.matcher(IOUtils.toString(httpURLConnection.getInputStream(), StandardCharsets.UTF_8));
+            Matcher clientIdMatcher = APP_SCRIPT_CLIENT_ID_PATTERN.matcher(BoundedStreams.readString(httpURLConnection.getInputStream(), BoundedStreams.MAX_PAGE_BYTES));
             return clientIdMatcher.find() ? clientIdMatcher.group(1) : null;
         } catch (Throwable e) {
             e.printStackTrace();
