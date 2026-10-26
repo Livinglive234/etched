@@ -19,10 +19,12 @@
     "client.sound.SoundEngineMixin"
   ],
   "mixins": [
+    "BlockEntityAccessor",
     "NoteBlockMixin",
     "StructureTemplatePoolAccessor",
     "VillagerGoalPackagesMixin",
     "component.JukeboxSongMixin",
+    "jukebox.JukeboxBlockEntityAccessor",
     "jukebox.JukeboxBlockEntityMixin",
     "jukebox.JukeboxPlayableMixin",
     "jukebox.JukeboxSongPlayerAccessor"
