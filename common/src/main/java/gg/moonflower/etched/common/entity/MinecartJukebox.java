@@ -37,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
 public class MinecartJukebox extends AbstractMinecart implements WorldlyContainer {
 
     private static final EntityDataAccessor<Boolean> DATA_ID_HAS_RECORD = SynchedEntityData.defineId(MinecartJukebox.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<ItemStack> DATA_RECORD = SynchedEntityData.defineId(MinecartJukebox.class, EntityDataSerializers.ITEM_STACK);
     private static final int[] SLOTS = {0};
 
     private ItemStack record;
@@ -49,6 +50,18 @@ public class MinecartJukebox extends AbstractMinecart implements WorldlyContaine
     public MinecartJukebox(Level level, double d, double e, double f) {
         super(EtchedEntities.JUKEBOX_MINECART.get(), level, d, e, f);
         this.record = ItemStack.EMPTY;
+    }
+
+    /**
+     * @return The record in the minecart that is known to the client, so it can be drawn on top
+     */
+    public ItemStack getDisplayRecord() {
+        return this.entityData.get(DATA_RECORD);
+    }
+
+    private void setRecord(ItemStack record) {
+        this.record = record;
+        this.entityData.set(DATA_RECORD, record.isEmpty() ? ItemStack.EMPTY : record.copyWithCount(1));
     }
 
     private void startPlaying(ItemStack stack, boolean restart) {
@@ -69,6 +82,7 @@ public class MinecartJukebox extends AbstractMinecart implements WorldlyContaine
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(DATA_ID_HAS_RECORD, false);
+        builder.define(DATA_RECORD, ItemStack.EMPTY);
     }
 
     @Override
@@ -145,7 +159,7 @@ public class MinecartJukebox extends AbstractMinecart implements WorldlyContaine
         super.readAdditionalSaveData(nbt);
         this.entityData.set(DATA_ID_HAS_RECORD, nbt.getBoolean("HasRecord"));
         if (nbt.contains("RecordItem", 10)) {
-            this.record = ItemStack.parseOptional(this.registryAccess(), nbt.getCompound("RecordItem"));
+            this.setRecord(ItemStack.parseOptional(this.registryAccess(), nbt.getCompound("RecordItem")));
         }
     }
 
@@ -208,6 +222,7 @@ public class MinecartJukebox extends AbstractMinecart implements WorldlyContaine
         this.setChanged();
         if (this.record.isEmpty()) {
             this.stopPlaying();
+            this.setRecord(ItemStack.EMPTY);
         }
         return split;
     }
@@ -224,7 +239,7 @@ public class MinecartJukebox extends AbstractMinecart implements WorldlyContaine
                 this.stopPlaying();
             }
             this.startPlaying(stack.copy(), false);
-            this.record = stack;
+            this.setRecord(stack);
         }
     }
 
