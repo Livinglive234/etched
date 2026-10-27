@@ -29,6 +29,15 @@ subprojects {
                 includeGroup "maven.modrinth"
             }
         }
+        // The companion library of Sable, only compiled against
+        exclusiveContent {
+            forRepository {
+                maven { url "https://maven.ryanhcode.dev/releases" }
+            }
+            filter {
+                includeGroup "dev.ryanhcode.sable-companion"
+            }
+        }
     }
 
     tasks.withType(JavaCompile).configureEach {
