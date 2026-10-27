@@ -4,6 +4,7 @@ import gg.moonflower.etched.api.sound.AbstractOnlineSoundInstance;
 import gg.moonflower.etched.core.Etched;
 import gg.moonflower.etched.platform.EtchedPlatform;
 import net.minecraft.client.Minecraft;
+import net.minecraft.sounds.SoundSource;
 
 import java.util.Collections;
 import java.util.Set;
@@ -11,7 +12,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Stops the game's background music while a radio, jukebox or boombox of this mod can be heard, so the two do not play over each other.
+ * Stops the game's background music, and music other mods play in the music category, while a radio, jukebox or boombox of this mod can be heard, so the two do not play over each other.
  */
 public final class MusicDucker {
 
@@ -41,6 +42,8 @@ public final class MusicDucker {
             for (AbstractOnlineSoundInstance sound : SOUNDS) {
                 if (minecraft.getSoundManager().isActive(sound) && sound.getVolume() > 0.0F) {
                     minecraft.getMusicManager().stopPlaying();
+                    // Mods that play their own music through the music category are not stopped by the music manager
+                    minecraft.getSoundManager().stop(null, SoundSource.MUSIC);
                     return;
                 }
             }
